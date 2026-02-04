@@ -1,0 +1,37 @@
+
+{
+  "name": "job-portal_back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec tsx src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "test": ""
+  },
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "express",
+    "api"
+  ],
+  "author": "Tresor mugisha",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.6",
+    "dotenv": "^17.2.3",
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
+  }
+}
