@@ -4,7 +4,6 @@ export type UserRole = "Employer" | "Applicant";
 export interface UserModel extends Document{
   FirstName: string;
   LastName: string;
-  UserName: string;
   Age: string;
   PhoneNumber: string;
   password: string;
@@ -17,7 +16,6 @@ export interface UserModel extends Document{
 const UserSchema = new Schema<UserModel>({
   FirstName: { type: String, required: true },
   LastName: { type: String, required: true },
-  UserName: { type: String, required: true, unique: true },
   Age: { type: String, required: true },
   PhoneNumber: { type: String, required: true },
   password: { type: String, required: true },
