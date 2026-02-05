@@ -1,4 +1,6 @@
 import express from 'express';
+import { protect } from '../middleware/auth.Middleware';
+import { authorize } from '../middleware/authorize';
 import {
   getAllApplications,
   submitApplication,
@@ -12,13 +14,13 @@ import {
 
 const router = express.Router();
 
-router.get('/', getAllApplications);
-router.post('/', submitApplication);
-router.get('/job/:jobId', getApplicationsByJob);
-router.get('/user/:userId', getApplicationsByUser);
-router.get('/employer/:employerId', getApplicationsByEmployer);
-router.get('/:id', getApplicationById);
-router.put('/:id/status', updateApplicationStatus);
-router.delete('/:id', deleteApplication);
+router.get('/', protect, authorize('admin'), getAllApplications);
+router.post('/', protect, authorize('Applicant'), submitApplication);
+router.get('/job/:jobId', protect, authorize('Employer', 'admin'), getApplicationsByJob);
+router.get('/user/:userId', protect, getApplicationsByUser);
+router.get('/employer/:employerId', protect, authorize('Employer', 'admin'), getApplicationsByEmployer);
+router.get('/:id', protect, getApplicationById);
+router.put('/:id/status', protect, authorize('Employer', 'admin'), updateApplicationStatus);
+router.delete('/:id', protect, authorize('admin'), deleteApplication);
 
 export default router;
