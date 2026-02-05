@@ -14,6 +14,7 @@ export interface UserModel extends Document{
   createdAt: Date;
   employerId?: string;
 }
+
 const UserSchema = new Schema<UserModel>({
   FirstName: { type: String, required: true },
   LastName: { type: String, required: true },

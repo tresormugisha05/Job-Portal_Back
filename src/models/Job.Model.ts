@@ -1,4 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
+export interface JobModel{
+
+}
 
 export type JobCategory = "Technology" | "Healthcare" | "Finance" | "Education" | "Marketing" | "Sales" | "Engineering" | "Other";
 export type JobType = "Full-time" | "Part-time" | "Contract" | "Internship" | "Remote";
