@@ -2,7 +2,6 @@ import express from 'express';
 import dotenv from 'dotenv';
 import userRoutes from './routes/User.Routes'
 import mongoose from 'mongoose';
-import userRoutes from './routes/User.Routes';
 import jobRoutes from './routes/Job.Routes';
 import applicationRoutes from './routes/Application.Routes';
 import employerRoutes from './routes/Employer.Routes';
