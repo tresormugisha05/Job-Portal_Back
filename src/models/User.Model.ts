@@ -12,6 +12,7 @@ export interface UserModel extends Document{
   resetPasswordToken?: String;
   resetPasswordExpires?: Date;
   createdAt: Date;
+  employerId?: string;
 }
 const UserSchema = new Schema<UserModel>({
   FirstName: { type: String, required: true },
@@ -23,7 +24,8 @@ const UserSchema = new Schema<UserModel>({
   UserType: { type: String, enum: ["Employer", "Applicant"], required: true },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  employerId: { type: String, ref: 'Employer' }
 });
 
 UserSchema.pre("save", async function () {
