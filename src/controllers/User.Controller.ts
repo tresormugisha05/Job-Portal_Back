@@ -144,30 +144,47 @@ export const getAllUsers = async (_: Request, res: Response) => {
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
-    const {  FirstName,LastName,password,
-      UserType} = req.body;
-      if(!FirstName||!LastName||!password||!UserType){
-        return res.status(400).json({
-            success:false,
-            message:"all fields are required"
-        })
-      }
-    const NewUser = await User.create(
-        {
-            FirstName:FirstName,
-            LastName:LastName,
-            password:password,
-            UserType:UserType,
-        }
-    )
+    const {
+      FirstName,
+      LastName,
+      UserName,
+      Age,
+      PhoneNumber,
+      password,
+      UserType,
+    } = req.body;
+
+    if (
+      !FirstName ||
+      !LastName ||
+      !Age ||
+      !PhoneNumber ||
+      !password ||
+      !UserType
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "all fields are required",
+      });
+    }
+
+    const NewUser = await User.create({
+      FirstName,
+      LastName,
+      Age,
+      PhoneNumber,
+      password,
+      UserType,
+    });
+
     res.status(201).json({
       success: true,
-      message: 'User created successfully',
-      data: NewUser
+      message: "User created successfully",
+      data: NewUser,
     });
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).json({message:"sorry please try again"});
+    console.error("Error creating user:", error);
+    res.status(500).json({ message: "sorry please try again" });
   }
 };
 

@@ -1,10 +1,21 @@
 import mongoose, { Schema, Document } from "mongoose";
-export interface JobModel{
+export interface JobModel {}
 
-}
-
-export type JobCategory = "Technology" | "Healthcare" | "Finance" | "Education" | "Marketing" | "Sales" | "Engineering" | "Other";
-export type JobType = "Full-time" | "Part-time" | "Contract" | "Internship" | "Remote";
+export type JobCategory =
+  | "Technology"
+  | "Healthcare"
+  | "Finance"
+  | "Education"
+  | "Marketing"
+  | "Sales"
+  | "Engineering"
+  | "Other";
+export type JobType =
+  | "Full-time"
+  | "Part-time"
+  | "Contract"
+  | "Internship"
+  | "Remote";
 
 export interface JobModel extends Document {
   title: string;
@@ -29,25 +40,34 @@ const JobSchema = new Schema<JobModel>({
   description: { type: String, required: true },
   requirements: { type: String, required: true },
   responsibilities: { type: String, required: true },
-  category: { 
-    type: String, 
-    enum: ["Technology", "Healthcare", "Finance", "Education", "Marketing", "Sales", "Engineering", "Other"], 
-    required: true 
+  category: {
+    type: String,
+    enum: [
+      "Technology",
+      "Healthcare",
+      "Finance",
+      "Education",
+      "Marketing",
+      "Sales",
+      "Engineering",
+      "Other",
+    ],
+    required: true,
   },
-  jobType: { 
-    type: String, 
-    enum: ["Full-time", "Part-time", "Contract", "Internship", "Remote"], 
-    required: true 
+  jobType: {
+    type: String,
+    enum: ["Full-time", "Part-time", "Contract", "Internship", "Remote"],
+    required: true,
   },
   location: { type: String, required: true },
   salary: { type: String },
   deadline: { type: Date, required: true },
-  employerId: { type: String, required: true, ref: 'Employer' },
+  employerId: { type: String, required: true, ref: "Employer" },
   views: { type: Number, default: 0 },
   applicationCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
 JobSchema.pre("save", function () {

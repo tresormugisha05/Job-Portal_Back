@@ -49,6 +49,10 @@ const options = {
         name: 'Employers',
         description: 'Employer profile management',
       },
+      {
+        name: 'Admin',
+        description: 'Administrative operations and platform management',
+      },
     ],
   },
   apis: ['./src/controllers/*.ts'], // Path to the API docs
