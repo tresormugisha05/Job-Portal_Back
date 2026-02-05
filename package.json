@@ -18,9 +18,13 @@
   "author": "Tresor mugisha",
   "license": "ISC",
   "dependencies": {
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
     "mongoose": "^9.1.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0"
   },

@@ -2,6 +2,93 @@ import { Request, Response } from 'express';
 import Employer from '../models/Employer.Model';
 import User from '../models/User.Model';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Employer:
+ *       type: object
+ *       required:
+ *         - companyName
+ *         - industry
+ *         - companySize
+ *         - description
+ *         - location
+ *         - contactEmail
+ *         - contactPhone
+ *         - userId
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the employer
+ *         companyName:
+ *           type: string
+ *           description: Name of the company
+ *         industry:
+ *           type: string
+ *           description: Industry sector
+ *         companySize:
+ *           type: string
+ *           description: Size of the company (e.g., '1-10', '11-50', '51-200', '201-500', '500+')
+ *         website:
+ *           type: string
+ *           description: Company website URL (optional)
+ *         description:
+ *           type: string
+ *           description: Company description
+ *         location:
+ *           type: string
+ *           description: Company location
+ *         contactEmail:
+ *           type: string
+ *           format: email
+ *           description: Contact email address
+ *         contactPhone:
+ *           type: string
+ *           description: Contact phone number
+ *         logo:
+ *           type: string
+ *           description: Company logo URL (optional)
+ *         isVerified:
+ *           type: boolean
+ *           default: false
+ *           description: Whether the employer is verified
+ *         userId:
+ *           type: string
+ *           description: ID of the associated user account
+ *         createdAt:
+ *           type: string
+ *           format: date
+ *           description: Date employer profile was created
+ *         updatedAt:
+ *           type: string
+ *           format: date
+ *           description: Date employer profile was last updated
+ */
+
+/**
+ * @swagger
+ * /api/employers:
+ *   get:
+ *     summary: Get all employers
+ *     tags: [Employers]
+ *     responses:
+ *       200:
+ *         description: List of all employers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Employer'
+ *       500:
+ *         description: Server error
+ */
 export const getAllEmployers = async (_: Request, res: Response) => {
   try {
     const employers = await Employer.find().populate('userId');
@@ -15,6 +102,75 @@ export const getAllEmployers = async (_: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/employers:
+ *   post:
+ *     summary: Create a new employer profile
+ *     tags: [Employers]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - companyName
+ *               - industry
+ *               - companySize
+ *               - description
+ *               - location
+ *               - contactEmail
+ *               - contactPhone
+ *               - userId
+ *             properties:
+ *               companyName:
+ *                 type: string
+ *                 description: Company name
+ *               industry:
+ *                 type: string
+ *                 description: Industry sector
+ *               companySize:
+ *                 type: string
+ *                 description: Company size
+ *               website:
+ *                 type: string
+ *                 description: Company website (optional)
+ *               description:
+ *                 type: string
+ *                 description: Company description
+ *               location:
+ *                 type: string
+ *                 description: Company location
+ *               contactEmail:
+ *                 type: string
+ *                 format: email
+ *                 description: Contact email
+ *               contactPhone:
+ *                 type: string
+ *                 description: Contact phone
+ *               userId:
+ *                 type: string
+ *                 description: ID of the associated user account
+ *     responses:
+ *       201:
+ *         description: Employer profile created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Employer'
+ *       400:
+ *         description: Missing required fields or profile already exists
+ *       500:
+ *         description: Server error
+ */
 export const addEmployer = async (req: Request, res: Response) => {
   try {
     const { 
@@ -78,6 +234,36 @@ export const addEmployer = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/employers/{id}:
+ *   get:
+ *     summary: Get an employer by ID
+ *     tags: [Employers]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employer ID
+ *     responses:
+ *       200:
+ *         description: Employer details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Employer'
+ *       404:
+ *         description: Employer not found
+ *       500:
+ *         description: Server error
+ */
 export const getEmployerById = async (req: Request, res: Response) => {
   try {
     const employer = await Employer.findById(req.params.id).populate('userId');
@@ -99,6 +285,44 @@ export const getEmployerById = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/employers/{id}:
+ *   put:
+ *     summary: Update an employer profile
+ *     tags: [Employers]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employer ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Employer'
+ *     responses:
+ *       200:
+ *         description: Employer updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Employer'
+ *       404:
+ *         description: Employer not found
+ *       500:
+ *         description: Server error
+ */
 export const updateEmployer = async (req: Request, res: Response) => {
   try {
     const employer = await Employer.findByIdAndUpdate(req.params.id, req.body, {
@@ -124,6 +348,36 @@ export const updateEmployer = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/employers/{id}:
+ *   delete:
+ *     summary: Delete an employer profile
+ *     tags: [Employers]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employer ID
+ *     responses:
+ *       200:
+ *         description: Employer deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Employer not found
+ *       500:
+ *         description: Server error
+ */
 export const deleteEmployer = async (req: Request, res: Response) => {
   try {
     const employer = await Employer.findByIdAndDelete(req.params.id);
@@ -147,6 +401,36 @@ export const deleteEmployer = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/employers/user/{userId}:
+ *   get:
+ *     summary: Get employer profile by user ID
+ *     tags: [Employers]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Employer profile details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Employer'
+ *       404:
+ *         description: Employer profile not found for this user
+ *       500:
+ *         description: Server error
+ */
 export const getEmployerByUserId = async (req: Request, res: Response) => {
   try {
     const employer = await Employer.findOne({ userId: req.params.userId }).populate('userId');
@@ -168,6 +452,38 @@ export const getEmployerByUserId = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/employers/{id}/verify:
+ *   put:
+ *     summary: Verify an employer profile
+ *     tags: [Employers]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employer ID
+ *     responses:
+ *       200:
+ *         description: Employer verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Employer'
+ *       404:
+ *         description: Employer not found
+ *       500:
+ *         description: Server error
+ */
 export const verifyEmployer = async (req: Request, res: Response) => {
   try {
     const employer = await Employer.findByIdAndUpdate(

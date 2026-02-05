@@ -1,6 +1,101 @@
 import { Request, Response } from 'express';
 import Job from '../models/Job.Model';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Job:
+ *       type: object
+ *       required:
+ *         - title
+ *         - description
+ *         - requirements
+ *         - responsibilities
+ *         - category
+ *         - jobType
+ *         - location
+ *         - deadline
+ *         - employerId
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the job
+ *         title:
+ *           type: string
+ *           description: The job title
+ *         description:
+ *           type: string
+ *           description: The job description
+ *         requirements:
+ *           type: string
+ *           description: Job requirements
+ *         responsibilities:
+ *           type: string
+ *           description: Job responsibilities
+ *         category:
+ *           type: string
+ *           enum: [Technology, Healthcare, Finance, Education, Marketing, Sales, Engineering, Other]
+ *           description: Job category
+ *         jobType:
+ *           type: string
+ *           enum: [Full-time, Part-time, Contract, Internship, Remote]
+ *           description: Type of employment
+ *         location:
+ *           type: string
+ *           description: Job location
+ *         salary:
+ *           type: string
+ *           description: Salary range
+ *         deadline:
+ *           type: string
+ *           format: date
+ *           description: Application deadline
+ *         employerId:
+ *           type: string
+ *           description: ID of the employer posting the job
+ *         views:
+ *           type: number
+ *           description: Number of times job was viewed
+ *         applicationCount:
+ *           type: number
+ *           description: Number of applications received
+ *         isActive:
+ *           type: boolean
+ *           description: Whether the job is currently active
+ *         createdAt:
+ *           type: string
+ *           format: date
+ *           description: Date job was created
+ *         updatedAt:
+ *           type: string
+ *           format: date
+ *           description: Date job was last updated
+ */
+
+/**
+ * @swagger
+ * /api/jobs:
+ *   get:
+ *     summary: Get all active jobs
+ *     tags: [Jobs]
+ *     responses:
+ *       200:
+ *         description: List of all active jobs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Job'
+ *       500:
+ *         description: Server error
+ */
 export const getAllJobs = async (_: Request, res: Response) => {
   try {
     const jobs = await Job.find({ isActive: true }).populate('employerId');
@@ -14,6 +109,79 @@ export const getAllJobs = async (_: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/jobs:
+ *   post:
+ *     summary: Create a new job posting
+ *     tags: [Jobs]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - requirements
+ *               - responsibilities
+ *               - category
+ *               - jobType
+ *               - location
+ *               - deadline
+ *               - employerId
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Job title
+ *               description:
+ *                 type: string
+ *                 description: Job description
+ *               requirements:
+ *                 type: string
+ *                 description: Job requirements
+ *               responsibilities:
+ *                 type: string
+ *                 description: Job responsibilities
+ *               category:
+ *                 type: string
+ *                 enum: [Technology, Healthcare, Finance, Education, Marketing, Sales, Engineering, Other]
+ *               jobType:
+ *                 type: string
+ *                 enum: [Full-time, Part-time, Contract, Internship, Remote]
+ *               location:
+ *                 type: string
+ *                 description: Job location
+ *               salary:
+ *                 type: string
+ *                 description: Salary range (optional)
+ *               deadline:
+ *                 type: string
+ *                 format: date
+ *                 description: Application deadline
+ *               employerId:
+ *                 type: string
+ *                 description: ID of the employer
+ *     responses:
+ *       201:
+ *         description: Job created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Job'
+ *       400:
+ *         description: Missing required fields
+ *       500:
+ *         description: Server error
+ */
 export const addJob = async (req: Request, res: Response) => {
   try {
     const { 
@@ -60,6 +228,36 @@ export const addJob = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/jobs/{id}:
+ *   get:
+ *     summary: Get a job by ID
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     responses:
+ *       200:
+ *         description: Job details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/Job'
+ *       404:
+ *         description: Job not found
+ *       500:
+ *         description: Server error
+ */
 export const getJobById = async (req: Request, res: Response) => {
   try {
     const job = await Job.findById(req.params.id).populate('employerId');
@@ -84,6 +282,44 @@ export const getJobById = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/jobs/{id}:
+ *   put:
+ *     summary: Update a job
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Job'
+ *     responses:
+ *       200:
+ *         description: Job updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Job'
+ *       404:
+ *         description: Job not found
+ *       500:
+ *         description: Server error
+ */
 export const updateJob = async (req: Request, res: Response) => {
   try {
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
@@ -109,6 +345,36 @@ export const updateJob = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/jobs/{id}:
+ *   delete:
+ *     summary: Delete a job
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     responses:
+ *       200:
+ *         description: Job deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Job not found
+ *       500:
+ *         description: Server error
+ */
 export const deleteJob = async (req: Request, res: Response) => {
   try {
     const job = await Job.findByIdAndDelete(req.params.id);
@@ -130,6 +396,36 @@ export const deleteJob = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/jobs/employer/{employerId}:
+ *   get:
+ *     summary: Get jobs by employer ID
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: path
+ *         name: employerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employer ID
+ *     responses:
+ *       200:
+ *         description: List of jobs by employer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Job'
+ *       500:
+ *         description: Server error
+ */
 export const getJobsByEmployer = async (req: Request, res: Response) => {
   try {
     const jobs = await Job.find({ employerId: req.params.employerId });
@@ -144,6 +440,52 @@ export const getJobsByEmployer = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/jobs/search:
+ *   get:
+ *     summary: Search jobs with filters
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: query
+ *         name: keyword
+ *         schema:
+ *           type: string
+ *         description: Search keyword for title or description
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum: [Technology, Healthcare, Finance, Education, Marketing, Sales, Engineering, Other]
+ *         description: Filter by category
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter by location
+ *       - in: query
+ *         name: jobType
+ *         schema:
+ *           type: string
+ *           enum: [Full-time, Part-time, Contract, Internship, Remote]
+ *         description: Filter by job type
+ *     responses:
+ *       200:
+ *         description: Search results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Job'
+ *       500:
+ *         description: Server error
+ */
 export const searchJobs = async (req: Request, res: Response) => {
   try {
     const { keyword, category, location, jobType } = req.query;

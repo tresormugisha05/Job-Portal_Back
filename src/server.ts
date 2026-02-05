@@ -1,10 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import userRoutes from './routes/User.Routes'
-import mongoose from 'mongoose';
+import userRoutes from './routes/User.Routes';
 import jobRoutes from './routes/Job.Routes';
 import applicationRoutes from './routes/Application.Routes';
 import employerRoutes from './routes/Employer.Routes';
+import { specs, swaggerUi } from './config/swagger';
+import mongoose from 'mongoose';
 
 dotenv.config();
 const app = express();
@@ -15,13 +16,17 @@ const MONGO_URL: string =
 
 app.use(express.json());
 
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Job Portal API Documentation'
+}));
+
 app.get('/', (req, res) => {
   res.json({ message: 'Job Portal API is running!' });
 });
-mongoose
-  .connect(MONGO_URL)
-  .then(() => console.log(" Connected to MongoDB Compass"))
-  .catch((err) => console.error(" Connection error:", err));
+
 app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
