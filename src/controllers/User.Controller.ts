@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../models/User.Model';
-export const getAllUsers = async (_: Request, res: Response) => {
+export const getAllUsers = async (_:Request, res: Response) => {
   try {
     const users = await User.find();
     res.status(200).json({

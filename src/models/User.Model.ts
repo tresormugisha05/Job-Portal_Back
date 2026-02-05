@@ -13,6 +13,7 @@ export interface UserModel extends Document{
   resetPasswordExpires?: Date;
   createdAt: Date;
 }
+
 const UserSchema = new Schema<UserModel>({
   FirstName: { type: String, required: true },
   LastName: { type: String, required: true },
