@@ -1,13 +1,14 @@
-import express from "express";
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import userRoutes from "./routes/User.Routes";
-import jobRoutes from "./routes/Job.Routes";
-import applicationRoutes from "./routes/Application.Routes";
-import employerRoutes from "./routes/Employer.Routes";
-import adminRoutes from "./routes/adminRoutes";
-import { specs, swaggerUi } from "./config/swagger";
-import cors from "cors";
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import userRoutes from './routes/User.Routes';
+import jobRoutes from './routes/Job.Routes';
+import applicationRoutes from './routes/Application.Routes';
+import employerRoutes from './routes/Employer.Routes';
+import adminRoutes from './routes/adminRoutes';
+import authRoutes from './routes/auth.Routes';
+import { specs, swaggerUi } from './config/swagger';
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,11 +40,12 @@ mongoose
     console.error("MongoDB connection error:", err.message);
     process.exit(1);
   });
-app.use("/api/users", userRoutes);
-app.use("/api/jobs", jobRoutes);
-app.use("/api/applications", applicationRoutes);
-app.use("/api/employers", employerRoutes);
-app.use("/api/admin", adminRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/employers', employerRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
