@@ -426,7 +426,6 @@ export const loginUser = async (req: Request, res: Response) => {
         message: "Invalid credentials"
       });
     }
-
     const token = generateToken(user._id.toString(), user.UserType);
 
     res.status(200).json({
