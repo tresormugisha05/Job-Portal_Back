@@ -8,6 +8,7 @@ import employerRoutes from "./routes/Employer.Routes";
 import adminRoutes from "./routes/adminRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import { specs, swaggerUi } from "./config/swagger";
+import { createIndexes } from "./config/indexing";
 import cors from "cors";
 
 dotenv.config();
@@ -37,11 +38,16 @@ app.get("/", (req, res) => {
 
 mongoose
   .connect(MONGO_URL)
-  .then(() => console.log("Connected to MongoDB Atlas"))
+  .then(async () => {
+    console.log("Connected to MongoDB Atlas");
+    // Create indexes after connection
+    await createIndexes();
+  })
   .catch((err) => {
     console.error("MongoDB connection error:", err.message);
     process.exit(1);
   });
+
 app.use("/api/auth", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);

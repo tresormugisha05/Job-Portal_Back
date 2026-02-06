@@ -1,6 +1,7 @@
 import express from 'express';
 import { protect } from '../middleware/auth.Middleware';
 import { authorize } from '../middleware/authorize';
+import { profileUpload } from '../middleware/profileUpload.middleware';
 import {
   addUser,
   getUserById,
@@ -12,7 +13,7 @@ import {
 } from '../controllers/User.Controller';
 
 const router = express.Router();
-router.post('/register', addUser);
+router.post('/register', profileUpload.single('profile'), addUser);
 router.post('/login', loginUser);
 router.post('/logout', protect, logoutUser);
 router.post('/change-password', protect, changePassword);

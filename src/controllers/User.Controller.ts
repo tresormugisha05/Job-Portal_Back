@@ -142,6 +142,18 @@ export const addUser = async (req: Request, res: Response) => {
       });
     }
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ Email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists"
+      });
+    }
+
+    // Get profile picture URL if uploaded
+    const profileUrl = req.file ? req.file.path : undefined;
+
     const NewUser = await User.create({
       FirstName,
       LastName,
@@ -150,16 +162,31 @@ export const addUser = async (req: Request, res: Response) => {
       PhoneNumber,
       password,
       UserType,
+      profile: profileUrl
     });
+
+    const token = generateToken(NewUser._id.toString(), NewUser.UserType);
 
     res.status(201).json({
       success: true,
       message: "User created successfully",
-      data: NewUser,
+      token,
+      user: {
+        id: NewUser._id,
+        FirstName: NewUser.FirstName,
+        LastName: NewUser.LastName,
+        Email: NewUser.Email,
+        UserType: NewUser.UserType,
+        profile: NewUser.profile
+      }
     });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({ 
+      success: false,
+      message: "User creation failed",
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 

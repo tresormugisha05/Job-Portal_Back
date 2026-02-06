@@ -3,7 +3,7 @@ import User from '../models/User.Model';
 import Employer from '../models/Employer.Model';
 import Job from '../models/Job.Model';
 import Application from '../models/Application.Model';
-
+import { getPaginationParams, createPaginationResult } from '../utils/pagination';
 /**
  * @swagger
  * components:
@@ -36,9 +36,35 @@ import Application from '../models/Application.Model';
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
  *     responses:
  *       200:
- *         description: List of all users (without passwords)
+ *         description: Paginated list of users
  *         content:
  *           application/json:
  *             schema:
@@ -46,22 +72,48 @@ import Application from '../models/Application.Model';
  *               properties:
  *                 success:
  *                   type: boolean
- *                 count:
- *                   type: number
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/User'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: number
+ *                     totalPages:
+ *                       type: number
+ *                     totalItems:
+ *                       type: number
+ *                     itemsPerPage:
+ *                       type: number
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
  *       500:
  *         description: Server error
  */
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find().select('-password');
+    const { page, limit, sortBy, sortOrder } = getPaginationParams(req.query);
+    const skip = (page - 1) * limit;
+    
+    const sortOptions: any = {};
+    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    
+    const users = await User.find()
+      .select('-password')
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+      
+    const totalUsers = await User.countDocuments();
+    const result = createPaginationResult(users, totalUsers, page, limit);
+    
     res.status(200).json({
       success: true,
-      count: users.length,
-      data: users
+      ...result
     });
   } catch (error) {
     console.error("Error fetching users:", error);
