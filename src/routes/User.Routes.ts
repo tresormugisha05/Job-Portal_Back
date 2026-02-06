@@ -7,15 +7,17 @@ import {
   getUserById,
   updateUser,
   deleteAllUsers,
-  deleteUserById
+  deleteUserById,
+  loginUser
 } from '../controllers/User.Controller';
 
 const router = express.Router();
-
+router.post('/register', addUser);
+router.post('/login', loginUser);
 router.get('/', protect, authorize('admin'), getAllUsers);
-router.post('/', addUser);
 router.get('/:id', protect, getUserById);
 router.put('/:id', protect, updateUser);
 router.delete('/', protect, authorize('admin'), deleteAllUsers);
 router.delete('/:id', protect, authorize('admin'), deleteUserById);
+
 export default router;

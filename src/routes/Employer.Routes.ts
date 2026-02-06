@@ -1,4 +1,6 @@
 import express from 'express';
+import { protect } from '../middleware/auth.Middleware';
+import { authorize } from '../middleware/authorize';
 import {
   getAllEmployers,
   addEmployer,
@@ -10,13 +12,12 @@ import {
 } from '../controllers/Employer.Controller';
 
 const router = express.Router();
-
 router.get('/', getAllEmployers);
-router.post('/', addEmployer);
-router.get('/user/:userId', getEmployerByUserId);
 router.get('/:id', getEmployerById);
-router.put('/:id', updateEmployer);
-router.put('/:id/verify', verifyEmployer);
-router.delete('/:id', deleteEmployer);
+router.post('/', protect, authorize('Employer'), addEmployer);
+router.get('/user/:userId', protect, getEmployerByUserId);
+router.put('/:id', protect, authorize('Employer'), updateEmployer);
+router.put('/:id/verify', protect, authorize('admin'), verifyEmployer);
+router.delete('/:id', protect, authorize('admin'), deleteEmployer);
 
 export default router;

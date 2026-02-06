@@ -1,5 +1,15 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import User from '../models/User.Model';
+
+const generateToken = (id: string, userType: string) => {
+  return jwt.sign(
+    { id, role: userType },
+    process.env.JWT_SECRET!,
+    { expiresIn: '14d' }
+  );
+};
 
 /**
  * @swagger
@@ -386,5 +396,53 @@ export const deleteUserById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleting user:", error);
     res.status(500).json({ message: "sorry please try again" });
+  }
+};
+
+// Login User
+export const loginUser = async (req: Request, res: Response) => {
+  try {
+    const { UserName, password } = req.body;
+
+    if (!UserName || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and password are required"
+      });
+    }
+
+    const user = await User.findOne({ UserName });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const token = generateToken(user._id.toString(), user.UserType);
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        FirstName: user.FirstName,
+        LastName: user.LastName,
+        Email: user.Email,
+        UserType: user.UserType
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: "Login failed" });
   }
 };

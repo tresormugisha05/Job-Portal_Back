@@ -12,7 +12,7 @@ export const protect = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "No token provided" });
+    return res.status(401).json({ error: "Access denied. No token provided." });
   }
 
   try {
@@ -20,13 +20,12 @@ export const protect = (
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
     req.user = {
-      username: decoded.username,
       id: decoded.id,
-      role: decoded.role,
+      role: decoded.role
     };
 
     next();
   } catch (error) {
-    res.status(401).json({ error: error });
+    res.status(401).json({ error: "Invalid token" });
   }
 };
