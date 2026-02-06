@@ -5,6 +5,7 @@ export interface UserModel extends Document {
   FirstName: string;
   LastName: string;
   Age: string;
+  email: string;
   PhoneNumber: string;
   Email:string;
   password: string;
@@ -20,7 +21,7 @@ const UserSchema = new Schema<UserModel>({
   FirstName: { type: String, required: true },
   LastName: { type: String, required: true },
   Age: { type: String, required: true },
-  Email: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   PhoneNumber: { type: String, required: true },
   password: { type: String, required: true },
   profile: { type: String },
@@ -28,7 +29,7 @@ const UserSchema = new Schema<UserModel>({
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
-  employerId: { type: String, ref: "Employer" },
+  employerId: { type: String, ref: 'Employer' }
 });
 
 UserSchema.pre("save", async function () {
