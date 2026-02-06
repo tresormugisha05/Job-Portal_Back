@@ -1,0 +1,94 @@
+# Alternative: Basic Swagger YAML Configuration
+# You can use this instead of the TypeScript config if you prefer YAML
+
+openapi: 3.0.0
+info:
+  title: Job Portal API
+  version: 1.0.0
+  description: A comprehensive job portal API for connecting job seekers with employers
+  contact:
+    name: API Support
+    email: support@jobportal.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.jobportal.com
+    description: Production server
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Jobs
+    description: Job posting and search operations
+  - name: Applications
+    description: Job application management
+  - name: Employers
+    description: Employer profile management
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  # All paths are documented in the controller files
+  # This file serves as a basic configuration template
+  
+  /api/users:
+    get:
+      tags: [Users]
+      summary: Get all users
+      responses:
+        '200':
+          description: List of all users
+    post:
+      tags: [Users]
+      summary: Create a new user
+      responses:
+        '201':
+          description: User created successfully
+
+  /api/jobs:
+    get:
+      tags: [Jobs]
+      summary: Get all active jobs
+      responses:
+        '200':
+          description: List of all active jobs
+    post:
+      tags: [Jobs]
+      summary: Create a new job posting
+      responses:
+        '201':
+          description: Job created successfully
+
+  /api/applications:
+    get:
+      tags: [Applications]
+      summary: Get all applications
+      responses:
+        '200':
+          description: List of all applications
+    post:
+      tags: [Applications]
+      summary: Submit a job application
+      responses:
+        '201':
+          description: Application submitted successfully
+
+  /api/employers:
+    get:
+      tags: [Employers]
+      summary: Get all employers
+      responses:
+        '200':
+          description: List of all employers
+    post:
+      tags: [Employers]
+      summary: Create a new employer profile
+      responses:
+        '201':
+          description: Employer profile created successfully
