@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
-export type UserRole = "Employer" | "Applicant";
+export type UserRole = "Employer" | "Applicant" | "admin";
 export interface UserModel extends Document {
   FirstName: string;
   LastName: string;
@@ -24,7 +24,7 @@ const UserSchema = new Schema<UserModel>({
   PhoneNumber: { type: String, required: true },
   password: { type: String, required: true },
   profile: { type: String },
-  UserType: { type: String, enum: ["employer", "applicant"], required: true },
+  UserType: { type: String, enum: ["Employer", "Applicant", "admin"], required: true },
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },

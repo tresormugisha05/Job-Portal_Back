@@ -65,43 +65,6 @@ const generateToken = (id: string, userType: string) => {
  *           type: string
  *           description: ID of associated employer profile (for employers)
  */
-
-/**
- * @swagger
- * /api/users:
- *   get:
- *     summary: Get all users
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: List of all users
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/User'
- *       500:
- *         description: Server error
- */
-export const getAllUsers = async (_: Request, res: Response) => {
-  try {
-    const users = await User.find();
-    res.status(200).json({
-      success: true,
-      data: users,
-    });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ message: "sorry please try again" });
-  }
-};
-
 /**
  * @swagger
  * /api/users:
@@ -313,41 +276,6 @@ export const updateUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: "sorry please try again" });
   }
 };
-/**
- * @swagger
- * /api/users:
- *   delete:
- *     summary: Delete all users
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: All users deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *       500:
- *         description: Server error
- */
-export const deleteAllUsers = async (req: Request, res: Response) => {
-  try {
-    const result = await User.deleteMany({});
-
-    res.status(200).json({
-      success: true,
-      message: `Deleted ${result.deletedCount} users`,
-    });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ message: "sorry please try again" });
-  }
-};
-
 /**
  * @swagger
  * /api/users/{id}:
