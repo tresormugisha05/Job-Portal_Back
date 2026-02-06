@@ -7,6 +7,7 @@ export interface UserModel extends Document {
   Age: string;
   email: string;
   PhoneNumber: string;
+  Email:string;
   password: string;
   profile?: string;
   UserType: UserRole;

@@ -147,8 +147,8 @@ export const addUser = async (req: Request, res: Response) => {
     const {
       FirstName,
       LastName,
-      UserName,
       Age,
+      Email,
       PhoneNumber,
       password,
       UserType,
@@ -157,6 +157,7 @@ export const addUser = async (req: Request, res: Response) => {
     if (
       !FirstName ||
       !LastName ||
+      !Email||
       !Age ||
       !PhoneNumber ||
       !password ||
@@ -171,6 +172,7 @@ export const addUser = async (req: Request, res: Response) => {
     const NewUser = await User.create({
       FirstName,
       LastName,
+      Email,
       Age,
       PhoneNumber,
       password,
