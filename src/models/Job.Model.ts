@@ -27,6 +27,7 @@ export interface JobModel extends Document {
   location: string;
   salary?: string;
   deadline: Date;
+  image:string;
   employerId: string;
   views: number;
   applicationCount: number;
@@ -37,6 +38,7 @@ export interface JobModel extends Document {
 
 const JobSchema = new Schema<JobModel>({
   title: { type: String, required: true },
+  image:{ type: String, required: true },
   description: { type: String, required: true },
   requirements: { type: String, required: true },
   responsibilities: { type: String, required: true },

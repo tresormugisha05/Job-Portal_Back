@@ -13,7 +13,7 @@ export class AuthService {
   static generateJWTToken(user: any): string {
     const payload: JWTPayload = {
       id: user._id,
-      email: user.email,
+      Email: user.Email,
       UserType: user.UserType,
     };
 
@@ -45,8 +45,7 @@ export class AuthService {
       return;
     }
 
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
-    
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${token}`;
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
