@@ -21,8 +21,6 @@ const storage = multer.diskStorage({
     cb(null, `img-${uniqueSuffix}${ext}`);
   },
 });
-
-// 3️⃣ File filter
 const fileFilter = (
   req: any,
   file: Express.Multer.File,

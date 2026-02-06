@@ -34,6 +34,10 @@ const options = {
     },
     tags: [
       {
+        name: 'Authentication',
+        description: 'User authentication and authorization operations',
+      },
+      {
         name: 'Users',
         description: 'User management operations',
       },
