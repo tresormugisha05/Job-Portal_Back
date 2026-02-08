@@ -67,7 +67,7 @@ const generateToken = (id: string, userType: string) => {
  */
 /**
  * @swagger
- * /api/users:
+ * /api/auth/register:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
@@ -192,7 +192,7 @@ export const addUser = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/auth/{id}:
  *   get:
  *     summary: Get a user by ID
  *     tags: [Users]
@@ -243,7 +243,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/auth/{id}:
  *   put:
  *     summary: Update a user
  *     tags: [Users]
@@ -305,7 +305,7 @@ export const updateUser = async (req: Request, res: Response) => {
 };
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/auth/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [Users]
@@ -354,6 +354,62 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - UserName
+ *               - password
+ *             properties:
+ *               UserName:
+ *                 type: string
+ *                 description: User username
+ *               password:
+ *                 type: string
+ *                 description: User password
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     FirstName:
+ *                       type: string
+ *                     LastName:
+ *                       type: string
+ *                     Email:
+ *                       type: string
+ *                     UserType:
+ *                       type: string
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
+ */
 // Login User
 export const loginUser = async (req: Request, res: Response) => {
   try {
@@ -401,6 +457,27 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/users/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
 // Logout User
 export const logoutUser = async (req: Request, res: Response) => {
   try {
@@ -414,6 +491,49 @@ export const logoutUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/users/change-password:
+ *   post:
+ *     summary: Change user password
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Current password
+ *               newPassword:
+ *                 type: string
+ *                 description: New password
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid current password
+ *       401:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 // Change Password
 export const changePassword = async (req: Request, res: Response) => {
   try {
