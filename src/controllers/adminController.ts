@@ -129,9 +129,35 @@ export const getAllUsers = async (req: Request, res: Response) => {
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
  *     responses:
  *       200:
- *         description: List of all employers
+ *         description: Paginated list of employers
  *         content:
  *           application/json:
  *             schema:
@@ -139,22 +165,47 @@ export const getAllUsers = async (req: Request, res: Response) => {
  *               properties:
  *                 success:
  *                   type: boolean
- *                 count:
- *                   type: number
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Employer'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: number
+ *                     totalPages:
+ *                       type: number
+ *                     totalItems:
+ *                       type: number
+ *                     itemsPerPage:
+ *                       type: number
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
  *       500:
  *         description: Server error
  */
 export const getAllEmployers = async (req: Request, res: Response) => {
   try {
-    const employers = await Employer.find();
+    const { page, limit, sortBy, sortOrder } = getPaginationParams(req.query);
+    const skip = (page - 1) * limit;
+
+    const sortOptions: any = {};
+    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+    const employers = await Employer.find()
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+
+    const totalEmployers = await Employer.countDocuments();
+    const result = createPaginationResult(employers, totalEmployers, page, limit);
+
     res.status(200).json({
       success: true,
-      count: employers.length,
-      data: employers
+      ...result
     });
   } catch (error) {
     console.error("Error fetching employers:", error);
@@ -170,9 +221,35 @@ export const getAllEmployers = async (req: Request, res: Response) => {
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
  *     responses:
  *       200:
- *         description: List of all jobs
+ *         description: Paginated list of jobs
  *         content:
  *           application/json:
  *             schema:
@@ -180,22 +257,47 @@ export const getAllEmployers = async (req: Request, res: Response) => {
  *               properties:
  *                 success:
  *                   type: boolean
- *                 count:
- *                   type: number
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Job'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: number
+ *                     totalPages:
+ *                       type: number
+ *                     totalItems:
+ *                       type: number
+ *                     itemsPerPage:
+ *                       type: number
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
  *       500:
  *         description: Server error
  */
 export const getAllJobs = async (req: Request, res: Response) => {
   try {
-    const jobs = await Job.find();
+    const { page, limit, sortBy, sortOrder } = getPaginationParams(req.query);
+    const skip = (page - 1) * limit;
+
+    const sortOptions: any = {};
+    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+    const jobs = await Job.find()
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+
+    const totalJobs = await Job.countDocuments();
+    const result = createPaginationResult(jobs, totalJobs, page, limit);
+
     res.status(200).json({
       success: true,
-      count: jobs.length,
-      data: jobs
+      ...result
     });
   } catch (error) {
     console.error("Error fetching jobs:", error);
@@ -211,9 +313,35 @@ export const getAllJobs = async (req: Request, res: Response) => {
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Items per page
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
  *     responses:
  *       200:
- *         description: List of all applications
+ *         description: Paginated list of applications
  *         content:
  *           application/json:
  *             schema:
@@ -221,22 +349,47 @@ export const getAllJobs = async (req: Request, res: Response) => {
  *               properties:
  *                 success:
  *                   type: boolean
- *                 count:
- *                   type: number
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Application'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: number
+ *                     totalPages:
+ *                       type: number
+ *                     totalItems:
+ *                       type: number
+ *                     itemsPerPage:
+ *                       type: number
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
  *       500:
  *         description: Server error
  */
 export const getAllApplications = async (req: Request, res: Response) => {
   try {
-    const applications = await Application.find();
+    const { page, limit, sortBy, sortOrder } = getPaginationParams(req.query);
+    const skip = (page - 1) * limit;
+
+    const sortOptions: any = {};
+    sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+    const applications = await Application.find()
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limit);
+
+    const totalApplications = await Application.countDocuments();
+    const result = createPaginationResult(applications, totalApplications, page, limit);
+
     res.status(200).json({
       success: true,
-      count: applications.length,
-      data: applications
+      ...result
     });
   } catch (error) {
     console.error("Error fetching applications:", error);
