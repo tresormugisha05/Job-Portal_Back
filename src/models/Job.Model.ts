@@ -21,17 +21,17 @@ export interface JobModel extends Document {
   title: string;
   description: string;
   company: string; // Added
-  requirements: string;
-  responsibilities: string;
+  requirements: string[];
+  responsibilities: string[];
   category: JobCategory;
-  jobType: JobType;
+  type: JobType;
   location: string;
   salary?: string;
-  experience?: string; // Added
-  education?: string; // Added
-  tags?: string[]; // Added
+  experience?: string;
+  education?: string;
+  tags?: string[];
   deadline: Date;
-  image:string;
+  image?: string;
   employerId: string;
   views: number;
   applicationCount: number;
@@ -42,11 +42,11 @@ export interface JobModel extends Document {
 
 const JobSchema = new Schema<JobModel>({
   title: { type: String, required: true },
-  image:{ type: String, required: true },
+  image: { type: String },
   description: { type: String, required: true },
-  company: { type: String, required: true }, // Added
-  requirements: { type: String, required: true },
-  responsibilities: { type: String, required: true },
+  company: { type: String, required: true },
+  requirements: [{ type: String, required: true }],
+  responsibilities: [{ type: String, required: true }],
   category: {
     type: String,
     enum: [
@@ -61,13 +61,16 @@ const JobSchema = new Schema<JobModel>({
     ],
     required: true,
   },
-  jobType: {
+  type: {
     type: String,
     enum: ["Full-time", "Part-time", "Contract", "Internship", "Remote"],
     required: true,
   },
   location: { type: String, required: true },
   salary: { type: String },
+  experience: { type: String },
+  education: { type: String },
+  tags: [{ type: String }],
   deadline: { type: Date, required: true },
   employerId: { type: String, required: true, ref: "Employer" },
   views: { type: Number, default: 0 },

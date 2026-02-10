@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import Job from '../models/Job.Model';
 
@@ -14,7 +15,7 @@ import Job from '../models/Job.Model';
  *         - requirements
  *         - responsibilities
  *         - category
- *         - jobType
+ *         - type
  *         - location
  *         - deadline
  *         - employerId
@@ -32,16 +33,25 @@ import Job from '../models/Job.Model';
  *           type: string
  *           description: The name of the company posting the job
  *         requirements:
- *           type: string
+ *           type: array
+ *           items:
+ *             type: string
  *           description: Job requirements
  *         responsibilities:
- *           type: string
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Job requirements
+ *         responsibilities:
+ *           type: array
+ *           items:
+ *             type: string
  *           description: Job responsibilities
  *         category:
  *           type: string
  *           enum: [Technology, Healthcare, Finance, Education, Marketing, Sales, Engineering, Other]
  *           description: Job category
- *         jobType:
+ *         type:
  *           type: string
  *           enum: [Full-time, Part-time, Contract, Internship, Remote]
  *           description: Type of employment
@@ -66,6 +76,9 @@ import Job from '../models/Job.Model';
  *           type: string
  *           format: date
  *           description: Application deadline
+ *         image:
+ *           type: string
+ *           description: URL of the job image
  *         employerId:
  *           type: string
  *           description: ID of the employer posting the job
@@ -159,14 +172,21 @@ export const getAllJobs = async (_: Request, res: Response) => {
  *                 description: The name of the company posting the job
  *               requirements:
  *                 type: string
+ *                 description: The name of the company posting the job
+ *               requirements:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *                 description: Job requirements
  *               responsibilities:
- *                 type: string
+ *                 type: array
+ *                 items:
+ *                   type: string
  *                 description: Job responsibilities
  *               category:
  *                 type: string
  *                 enum: [Technology, Healthcare, Finance, Education, Marketing, Sales, Engineering, Other]
- *               jobType:
+ *               type:
  *                 type: string
  *                 enum: [Full-time, Part-time, Contract, Internship, Remote]
  *               location:
@@ -193,6 +213,9 @@ export const getAllJobs = async (_: Request, res: Response) => {
  *               employerId:
  *                 type: string
  *                 description: ID of the employer
+ *               image:
+ *                 type: string
+ *                 description: URL of the job image (optional)
  *     responses:
  *       201:
  *         description: Job created successfully
@@ -214,24 +237,25 @@ export const getAllJobs = async (_: Request, res: Response) => {
  */
 export const addJob = async (req: Request, res: Response) => {
   try {
-    const { 
-      title, 
+    const {
+      title,
       description,
-      company, // Added
-      requirements, 
+      company,
+      requirements,
       responsibilities,
-      category, 
-      jobType, 
-      location, 
-      salary, 
-      experience, // Added
-      education, // Added
-      tags, // Added
-      deadline, 
-      employerId 
+      category,
+      type,
+      location,
+      salary,
+      experience,
+      education,
+      tags,
+      deadline,
+      employerId,
+      image
     } = req.body;
     
-    if(!title || !description || !company || !requirements || !responsibilities || !category || !jobType || !location || !deadline || !employerId){
+    if(!title || !description || !company || !requirements || !responsibilities || !category || !type || !location || !deadline || !employerId){
       return res.status(400).json({
         success:false,
         message:"all required fields are needed"
@@ -241,18 +265,19 @@ export const addJob = async (req: Request, res: Response) => {
     const newJob = await Job.create({
       title,
       description,
-      company, // Added
+      company,
       requirements,
       responsibilities,
       category,
-      jobType,
+      type,
       location,
       salary,
-      experience, // Added
-      education, // Added
-      tags, // Added
+      experience,
+      education,
+      tags,
       deadline,
-      employerId
+      employerId,
+      image
     });
     
     res.status(201).json({
@@ -502,7 +527,7 @@ export const getJobsByEmployer = async (req: Request, res: Response) => {
  *           type: string
  *         description: Filter by location
  *       - in: query
- *         name: jobType
+ *         name: type
  *         schema:
  *           type: string
  *           enum: [Full-time, Part-time, Contract, Internship, Remote]
@@ -526,7 +551,7 @@ export const getJobsByEmployer = async (req: Request, res: Response) => {
  */
 export const searchJobs = async (req: Request, res: Response) => {
   try {
-    const { keyword, category, location, jobType } = req.query;
+    const { keyword, category, location, type } = req.query;
     
     let query: any = { isActive: true };
     
@@ -539,7 +564,7 @@ export const searchJobs = async (req: Request, res: Response) => {
     
     if (category) query.category = category;
     if (location) query.location = { $regex: location, $options: 'i' };
-    if (jobType) query.jobType = jobType;
+    if (type) query.type = type;
     
     const jobs = await Job.find(query).populate('employerId');
     
