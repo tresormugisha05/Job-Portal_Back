@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
-export interface JobModel {}
 
+// Job categories & types
 export type JobCategory =
   | "Technology"
   | "Healthcare"
@@ -10,6 +10,7 @@ export type JobCategory =
   | "Sales"
   | "Engineering"
   | "Other";
+
 export type JobType =
   | "Full-time"
   | "Part-time"
@@ -17,22 +18,28 @@ export type JobType =
   | "Internship"
   | "Remote";
 
+// Job interface
 export interface JobModel extends Document {
   title: string;
   description: string;
-  company: string; // Added
+  company: string;           // Integration field
   requirements: string[];
   responsibilities: string[];
   category: JobCategory;
-  type: JobType;
+  jobType: JobType;          // For backend logic
+  type: string;              // Frontend display
+  typeBg: string;            // Frontend color class
   location: string;
   salary?: string;
   experience?: string;
   education?: string;
   tags?: string[];
   deadline: Date;
-  image?: string;
+  logo: string;              // Master field
+  logoBg?: string;           // Optional frontend color class
+  image?: string;            // Integration field
   employerId: string;
+  featured: boolean;
   views: number;
   applicationCount: number;
   isActive: boolean;
@@ -40,39 +47,36 @@ export interface JobModel extends Document {
   updatedAt: Date;
 }
 
+// Job schema
 const JobSchema = new Schema<JobModel>({
   title: { type: String, required: true },
-  image: { type: String },
+  logo: { type: String, required: true },
+  logoBg: { type: String, default: "bg-blue-100 text-blue-600" },
+  image: { type: String },                      // Integration
   description: { type: String, required: true },
-  company: { type: String, required: true },
-  requirements: [{ type: String, required: true }],
-  responsibilities: [{ type: String, required: true }],
+  company: { type: String, required: true },   // Integration
+  requirements: { type: [String], default: [] },
+  responsibilities: { type: [String], default: [] },
   category: {
     type: String,
-    enum: [
-      "Technology",
-      "Healthcare",
-      "Finance",
-      "Education",
-      "Marketing",
-      "Sales",
-      "Engineering",
-      "Other",
-    ],
+    enum: ["Technology","Healthcare","Finance","Education","Marketing","Sales","Engineering","Other"],
     required: true,
   },
-  type: {
+  jobType: {
     type: String,
-    enum: ["Full-time", "Part-time", "Contract", "Internship", "Remote"],
+    enum: ["Full-time","Part-time","Contract","Internship","Remote"],
     required: true,
   },
+  type: { type: String, required: true },     // Frontend
+  typeBg: { type: String, required: true },   // Frontend
   location: { type: String, required: true },
   salary: { type: String },
   experience: { type: String },
   education: { type: String },
-  tags: [{ type: String }],
+  tags: { type: [String], default: [] },
   deadline: { type: Date, required: true },
   employerId: { type: String, required: true, ref: "Employer" },
+  featured: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
   applicationCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
@@ -80,6 +84,7 @@ const JobSchema = new Schema<JobModel>({
   updatedAt: { type: Date, default: Date.now },
 });
 
+// Update updatedAt before save
 JobSchema.pre("save", function () {
   this.updatedAt = new Date();
 });

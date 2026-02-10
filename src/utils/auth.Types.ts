@@ -1,5 +1,5 @@
 export interface LoginRequest {
-  Email: string;
+  email: string;
   password: string;
 }
 
@@ -7,10 +7,10 @@ export interface RegisterRequest {
   FirstName: string;
   LastName: string;
   Age: string;
-  Email: string;
+  email: string;
   PhoneNumber: string;
   password: string;
-  UserType: "Employer" | "Applicant";
+  role: "EMPLOYER" | "CANDIDATE";
 }
 
 export interface LoginResponse {
@@ -19,10 +19,10 @@ export interface LoginResponse {
   token?: string;
   user?: {
     id: string;
-    Email: string;
+    email: string;
     FirstName: string;
     LastName: string;
-    UserType: string;
+    role: string;
   };
 }
 
@@ -37,13 +37,13 @@ export interface ResetPasswordRequest {
 }
 
 export interface RequestResetRequest {
-  Email: string;
+  email: string;
 }
 
 export interface JWTPayload {
   id: string;
-  Email: string;
-  UserType: string;
+  email: string;
+  role: string;
   iat?: number;
   exp?: number;
 }

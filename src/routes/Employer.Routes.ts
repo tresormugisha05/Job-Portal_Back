@@ -6,15 +6,17 @@ import {
   addEmployer,
   getEmployerById,
   updateEmployer,
-  deleteEmployer
+  deleteEmployer,
+  verifyEmployer
 } from '../controllers/Employer.Controller';
 
 const router = express.Router();
 
 router.get('/', getAllEmployers);
 router.get('/:id', getEmployerById);
-router.post('/', protect, authorize('Employer'), addEmployer);
-router.put('/:id', protect, authorize('Employer'), updateEmployer);
-router.delete('/:id', protect, authorize('admin'), deleteEmployer);
+router.post('/', protect, authorize('EMPLOYER'), addEmployer);
+router.put('/:id', protect, authorize('EMPLOYER'), updateEmployer);
+router.delete('/:id', protect, authorize('ADMIN'), deleteEmployer);
+router.patch('/:id/verify', protect, authorize('ADMIN'), verifyEmployer);
 
 export default router;
