@@ -14,7 +14,7 @@ import {
 
 const router = express.Router();
 router.use(protect);
-router.use(authorize('admin'));
+router.use(authorize('ADMIN'));
 router.get('/users', getAllUsers);
 router.get('/employers', getAllEmployers);
 router.get('/jobs', getAllJobs);

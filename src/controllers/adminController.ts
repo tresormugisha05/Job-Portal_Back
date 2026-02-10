@@ -98,19 +98,19 @@ export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const { page, limit, sortBy, sortOrder } = getPaginationParams(req.query);
     const skip = (page - 1) * limit;
-    
+
     const sortOptions: any = {};
     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
-    
+
     const users = await User.find()
       .select('-password')
       .sort(sortOptions)
       .skip(skip)
       .limit(limit);
-      
+
     const totalUsers = await User.countDocuments();
     const result = createPaginationResult(users, totalUsers, page, limit);
-    
+
     res.status(200).json({
       success: true,
       ...result
@@ -428,7 +428,7 @@ export const getStats = async (req: Request, res: Response) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalEmployers = await Employer.countDocuments();
-    const totalApplicants = await User.countDocuments({ UserType: 'Applicant' });
+    const totalApplicants = await User.countDocuments({ role: 'CANDIDATE' });
     const totalJobs = await Job.countDocuments();
     const totalApplications = await Application.countDocuments();
 

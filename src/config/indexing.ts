@@ -5,8 +5,8 @@ export const createIndexes = async () => {
     console.log('Creating database indexes...');
 
     // User indexes
-    await mongoose.connection.collection('users').createIndex({ Email: 1 }, { unique: true });
-    await mongoose.connection.collection('users').createIndex({ UserType: 1 });
+    await mongoose.connection.collection('users').createIndex({ email: 1 }, { unique: true });
+    await mongoose.connection.collection('users').createIndex({ role: 1 });
     await mongoose.connection.collection('users').createIndex({ createdAt: -1 });
 
     // Job indexes
@@ -28,9 +28,9 @@ export const createIndexes = async () => {
     await mongoose.connection.collection('applications').createIndex({ userId: 1, jobId: 1 }, { unique: true });
 
     // Employer indexes
-    await mongoose.connection.collection('employers').createIndex({ email: 1 }, { unique: true });
+    await mongoose.connection.collection('employers').createIndex({ contactEmail: 1 }, { unique: true });
     await mongoose.connection.collection('employers').createIndex({ companyName: 1 });
-    await mongoose.connection.collection('employers').createIndex({ verified: 1 });
+    await mongoose.connection.collection('employers').createIndex({ isVerified: 1 });
     await mongoose.connection.collection('employers').createIndex({ createdAt: -1 });
 
     // Compound indexes for common queries

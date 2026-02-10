@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export type ApplicationStatus = "pending" | "reviewed" | "shortlisted" | "rejected" | "hired";
+export type ApplicationStatus = "PENDING" | "REVIEWED" | "SHORTLISTED" | "REJECTED" | "HIRED";
 
 export interface ApplicationModel extends Document {
   jobId: string;
@@ -20,10 +20,10 @@ const ApplicationSchema = new Schema<ApplicationModel>({
   employerId: { type: String, required: true, ref: 'Employer' },
   resume: { type: String, required: true },
   coverLetter: { type: String },
-  status: { 
-    type: String, 
-    enum: ["pending", "reviewed", "shortlisted", "rejected", "hired"], 
-    default: "pending" 
+  status: {
+    type: String,
+    enum: ["PENDING", "REVIEWED", "SHORTLISTED", "REJECTED", "HIRED"],
+    default: "PENDING"
   },
   notes: { type: String },
   submissionDate: { type: Date, default: Date.now },
