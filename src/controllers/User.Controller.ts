@@ -132,12 +132,13 @@ export const addUser = async (req: Request, res: Response) => {
         avatar: NewUser.avatar
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating user:", error);
     res.status(500).json({
       success: false,
       message: "User creation failed",
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error.message || 'Unknown error',
+      details: error.stack
     });
   }
 };
