@@ -4,7 +4,7 @@ import User from '../models/User.Model';
 
 // Helper function to check if user is an employer
 const isUserEmployer = (user: any): boolean => {
-  return user && user.UserType === "Employer";
+  return user && user.role === "EMPLOYER";
 };
 
 /**
@@ -181,7 +181,7 @@ export const getAllEmployers = async (_: Request, res: Response) => {
  */
 export const addEmployer = async (req: Request, res: Response) => {
   try {
-    const { 
+    const {
       companyName,
       industry,
       companySize,
@@ -229,7 +229,7 @@ export const addEmployer = async (req: Request, res: Response) => {
     });
 
     if (user) {
-      user.employerId = newEmployer._id.toString();
+      user.employerId = newEmployer._id as any;
       await user.save();
     }
 
@@ -405,5 +405,50 @@ export const deleteEmployer = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleting employer:", error);
     res.status(500).json({ message: "sorry please try again" });
+  }
+};
+/**
+ * @swagger
+ * /api/employers/{id}/verify:
+ *   patch:
+ *     summary: Verify or unverify an employer (Admin only)
+ *     tags: [Employers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Employer verification status updated successfully
+ *       404:
+ *         description: Employer not found
+ *       500:
+ *         description: Server error
+ */
+export const verifyEmployer = async (req: Request, res: Response) => {
+  try {
+    const employer = await Employer.findById(req.params.id);
+    if (!employer) {
+      return res.status(404).json({
+        success: false,
+        message: "Employer not found",
+      });
+    }
+
+    employer.isVerified = !employer.isVerified;
+    await employer.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Employer ${employer.isVerified ? "verified" : "unverified"} successfully`,
+      data: { isVerified: employer.isVerified },
+    });
+  } catch (error) {
+    console.error("Error verifying employer:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

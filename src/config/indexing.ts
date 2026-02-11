@@ -4,16 +4,16 @@ export const createIndexes = async () => {
   try {
     console.log('Creating database indexes...');
 
-    // User indexes
+    // Users indexes
     try {
-      await mongoose.connection.collection('users').createIndex({ Email: 1 }, { unique: true });
+      await mongoose.connection.collection('users').createIndex({ email: 1 }, { unique: true });
     } catch (error) {
-      console.error('Error creating unique index on users.Email:', error);
+      console.error('Error creating unique index on users.email:', error);
     }
-    await mongoose.connection.collection('users').createIndex({ UserType: 1 });
+    await mongoose.connection.collection('users').createIndex({ role: 1 });
     await mongoose.connection.collection('users').createIndex({ createdAt: -1 });
 
-    // Job indexes
+    // Jobs indexes
     await mongoose.connection.collection('jobs').createIndex({ category: 1 });
     await mongoose.connection.collection('jobs').createIndex({ jobType: 1 });
     await mongoose.connection.collection('jobs').createIndex({ location: 1 });
@@ -23,6 +23,7 @@ export const createIndexes = async () => {
     await mongoose.connection.collection('jobs').createIndex({ createdAt: -1 });
     await mongoose.connection.collection('jobs').createIndex({ views: -1 });
 
+    // Applications indexes
     await mongoose.connection.collection('applications').createIndex({ userId: 1 });
     await mongoose.connection.collection('applications').createIndex({ jobId: 1 });
     await mongoose.connection.collection('applications').createIndex({ employerId: 1 });
@@ -34,14 +35,14 @@ export const createIndexes = async () => {
       console.error('Error creating unique index on applications.userId, jobId:', error);
     }
 
-    // Employer indexes
+    // Employers indexes
     try {
-      await mongoose.connection.collection('employers').createIndex({ email: 1 }, { unique: true });
+      await mongoose.connection.collection('employers').createIndex({ contactEmail: 1 }, { unique: true });
     } catch (error) {
-      console.error('Error creating unique index on employers.email:', error);
+      console.error('Error creating unique index on employers.contactEmail:', error);
     }
     await mongoose.connection.collection('employers').createIndex({ companyName: 1 });
-    await mongoose.connection.collection('employers').createIndex({ verified: 1 });
+    await mongoose.connection.collection('employers').createIndex({ isVerified: 1 });
     await mongoose.connection.collection('employers').createIndex({ createdAt: -1 });
 
     // Compound indexes for common queries

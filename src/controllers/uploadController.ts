@@ -23,7 +23,7 @@ export const uploadProfilePicture = async (req: AuthRequest, res: Response) => {
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { profile: profileUrl },
+      { avatar: profileUrl },
       { new: true }
     ).select('-password');
 
@@ -38,7 +38,7 @@ export const uploadProfilePicture = async (req: AuthRequest, res: Response) => {
       success: true,
       message: 'Profile picture uploaded successfully',
       data: {
-        profileUrl: user.profile
+        profileUrl: user.avatar
       }
     });
   } catch (error) {

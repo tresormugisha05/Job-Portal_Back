@@ -9,7 +9,8 @@ import {
   deleteUserById,
   loginUser,
   logoutUser,
-  changePassword
+  changePassword,
+  toggleUserStatus
 } from '../controllers/User.Controller';
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.post('/logout', protect, logoutUser);
 router.post('/change-password', protect, changePassword);
 router.get('/:id', protect, getUserById);
 router.put('/:id', protect, updateUser);
-router.delete('/:id', protect, authorize('admin'), deleteUserById);
+router.delete('/:id', protect, authorize('ADMIN'), deleteUserById);
+router.patch('/:id/status', protect, authorize('ADMIN'), toggleUserStatus);
 
 export default router;
