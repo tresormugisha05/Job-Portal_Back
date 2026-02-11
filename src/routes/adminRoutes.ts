@@ -9,7 +9,13 @@ import {
   deleteUser,
   deleteEmployer,
   deleteApplication,
-  getStats
+  getStats,
+  getAllCategories,
+  getSingleCategory,
+  addCategory,
+  deleteCategory,
+  DeleteAllCategories,
+  updateCategory
 } from '../controllers/adminController';
 
 const router = express.Router();
@@ -22,6 +28,13 @@ router.get('/applications', getAllApplications);
 router.delete('/users/:id', deleteUser);
 router.delete('/employers/:id', deleteEmployer);
 router.delete('/applications/:id', deleteApplication);
+router.get('/',getAllCategories);
+router.get('/:id', getSingleCategory);
+router.post('/', addCategory);
+router.put('/:id', updateCategory);
+router.delete('/:id',deleteCategory);
+router.patch('/',DeleteAllCategories);
+
 router.get('/stats', getStats);
 
 export default router;

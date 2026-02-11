@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
 const MONGO_URL: string =
-  process.env.DATABASE_URL || "mongodb://localhost:27017/job_portal";
+  process.env.MONGO_URL || "mongodb://localhost:27017/job_portal";
 app.use(express.json());
 app.use(
   "/api-docs",
@@ -38,7 +38,6 @@ mongoose
   .connect(MONGO_URL)
   .then(async () => {
     console.log("Connected to MongoDB Atlas");
-    // Create indexes after connection
     await createIndexes();
   })
   .catch((err) => {

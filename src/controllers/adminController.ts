@@ -3,6 +3,7 @@ import User from '../models/User.Model';
 import Employer from '../models/Employer.Model';
 import Job from '../models/Job.Model';
 import Application from '../models/Application.Model';
+import Category from '../models/Category.Model';
 import { getPaginationParams, createPaginationResult } from '../utils/pagination';
 /**
  * @swagger
@@ -598,5 +599,121 @@ export const getStats = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching stats:", error);
     res.status(500).json({ message: "sorry please try again" });
+  }
+};
+export const addCategory = async (req: Request, res: Response) => {
+  try {
+    const { name, description } = req.body;
+    const category = await Category.create({
+      name,
+      description,
+    });
+    return res.status(201).json({
+      success: true,
+      category,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "internal server error",
+    });
+    console.log(error);
+  }
+};
+export const getAllCategories = async (_: Request, res: Response) => {
+  try {
+    const categories = await Category.find({});
+    return res.status(200).json({
+      success: true,
+      categories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "internal server error",
+    });
+    console.log(error);
+  }
+};
+export const getSingleCategory = async (req: Request, res: Response) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "category not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      category,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "internal server error",
+    });
+    console.log(error);
+  }
+};
+export const deleteCategory = async (req: Request, res: Response) => {
+  try {
+    const category = await Category.findByIdAndDelete(req.params.id);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "category not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "category deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "internal server error",
+    });
+    console.log(error);
+  }
+};
+export const updateCategory = async (req: Request, res: Response) => {
+  try {
+    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "category not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "category updated successfully",
+      category,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "internal server error",
+    });
+    console.log(error);
+  }
+};
+export const DeleteAllCategories = async (_: Request, res: Response) => {
+  try {
+    const categories = await Category.deleteMany({});
+    return res.status(200).json({
+      success: true,
+      message: `${categories.deletedCount} categories deleted successfully`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "internal server error",
+    });
+    console.log(error);
   }
 };
