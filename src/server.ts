@@ -1,15 +1,15 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import mongoose from "mongoose";
 import userRoutes from "./routes/User.Routes";
 import jobRoutes from "./routes/Job.Routes";
 import applicationRoutes from "./routes/Application.Routes";
 import employerRoutes from "./routes/Employer.Routes";
 import adminRoutes from "./routes/adminRoutes";
-import authRoutes from "./routes/auth.Routes";
 import uploadRoutes from "./routes/uploadRoutes";
 import { specs, swaggerUi } from "./config/swagger";
-import cors from "cors";
+import { createIndexes } from "./config/indexing";
 
 dotenv.config();
 const app = express();
@@ -18,10 +18,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
-const MONGO_URL: string =
-  process.env.MONGO_URL ||
-  "mongodb+srv://tresormugisha07_db_user:G5YHr8TSpTRNNIzJ@cluster10.jeu8p4p.mongodb.net/job_portal?retryWrites=true&w=majority";
-
+const MONGO_URL: string = process.env.MONGO_URL || "mongodb://localhost:27017/job_portal";
+console.log("MongoDB URL:", MONGO_URL);
 app.use(
   "/api-docs",
   swaggerUi.serve,
@@ -38,12 +36,15 @@ app.get("/", (req, res) => {
 
 mongoose
   .connect(MONGO_URL)
-  .then(() => console.log("Connected to MongoDB Atlas"))
+  .then(async () => {
+    console.log("Connected to MongoDB Atlas");
+    // Create indexes after connection
+    await createIndexes();
+  })
   .catch((err) => {
     console.error("MongoDB connection error:", err.message);
     process.exit(1);
   });
-app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);

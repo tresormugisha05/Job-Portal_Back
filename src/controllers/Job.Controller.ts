@@ -10,6 +10,7 @@ import Job from '../models/Job.Model';
  *       required:
  *         - title
  *         - description
+ *         - company
  *         - requirements
  *         - responsibilities
  *         - category
@@ -27,6 +28,9 @@ import Job from '../models/Job.Model';
  *         description:
  *           type: string
  *           description: The job description
+ *         company:
+ *           type: string
+ *           description: The name of the company posting the job
  *         requirements:
  *           type: string
  *           description: Job requirements
@@ -47,6 +51,17 @@ import Job from '../models/Job.Model';
  *         salary:
  *           type: string
  *           description: Salary range
+ *         experience:
+ *           type: string
+ *           description: Required years of experience
+ *         education:
+ *           type: string
+ *           description: Required educational background
+ *         tags:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Keywords or skills related to the job
  *         deadline:
  *           type: string
  *           format: date
@@ -124,6 +139,7 @@ export const getAllJobs = async (_: Request, res: Response) => {
  *             required:
  *               - title
  *               - description
+ *               - company
  *               - requirements
  *               - responsibilities
  *               - category
@@ -138,6 +154,9 @@ export const getAllJobs = async (_: Request, res: Response) => {
  *               description:
  *                 type: string
  *                 description: Job description
+ *               company:
+ *                 type: string
+ *                 description: The name of the company posting the job
  *               requirements:
  *                 type: string
  *                 description: Job requirements
@@ -156,6 +175,17 @@ export const getAllJobs = async (_: Request, res: Response) => {
  *               salary:
  *                 type: string
  *                 description: Salary range (optional)
+ *               experience:
+ *                 type: string
+ *                 description: Required years of experience (optional)
+ *               education:
+ *                 type: string
+ *                 description: Required educational background (optional)
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Keywords or skills related to the job (optional)
  *               deadline:
  *                 type: string
  *                 format: date
@@ -186,18 +216,28 @@ export const addJob = async (req: Request, res: Response) => {
   try {
     const { 
       title, 
-      description, 
+      description,
+      company,
       requirements, 
       responsibilities,
       category, 
-      jobType, 
+      jobType,
+      type, // Frontend might send 'type' instead of 'jobType'
       location, 
       salary, 
+      experience,
+      education,
+      tags,
       deadline, 
-      employerId 
+      employerId,
+      image,
+      hasBanner
     } = req.body;
     
-    if(!title || !description || !requirements || !responsibilities || !category || !jobType || !location || !deadline || !employerId){
+    // Use 'type' if 'jobType' is not provided
+    const finalJobType = jobType || type;
+    
+    if(!title || !description || !company || !requirements || !responsibilities || !category || !finalJobType || !location || !deadline || !employerId){
       return res.status(400).json({
         success:false,
         message:"all required fields are needed"
@@ -207,14 +247,19 @@ export const addJob = async (req: Request, res: Response) => {
     const newJob = await Job.create({
       title,
       description,
+      company,
       requirements,
       responsibilities,
       category,
-      jobType,
+      jobType: finalJobType,
       location,
       salary,
+      experience,
+      education,
+      tags,
       deadline,
-      employerId
+      employerId,
+      image
     });
     
     res.status(201).json({

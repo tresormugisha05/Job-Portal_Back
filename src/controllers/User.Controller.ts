@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User.Model';
 
 const generateToken = (id: string, userType: string) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+  }
   return jwt.sign(
     { id, role: userType },
     process.env.JWT_SECRET!,
@@ -18,56 +21,34 @@ const generateToken = (id: string, userType: string) => {
  *     User:
  *       type: object
  *       required:
- *         - FirstName
- *         - LastName
- *         - Age
- *         - PhoneNumber
+ *         - name
+ *         - email
+ *         - phone
  *         - password
- *         - UserType
+ *         - role
  *       properties:
  *         id:
  *           type: string
- *           description: The auto-generated id of the user
- *         FirstName:
+ *         name:
  *           type: string
- *           description: First name of the user
- *         LastName:
+ *         email:
  *           type: string
- *           description: Last name of the user
- *         Age:
+ *         phone:
  *           type: string
- *           description: Age of the user
- *         PhoneNumber:
- *           type: string
- *           description: Phone number of the user
  *         password:
  *           type: string
- *           description: Hashed password of the user
- *         profile:
+ *         avatar:
  *           type: string
- *           description: Profile picture URL (optional)
- *         UserType:
+ *         role:
  *           type: string
- *           enum: [Employer, Applicant]
- *           description: Type of user
- *         resetPasswordToken:
- *           type: string
- *           description: Token for password reset (optional)
- *         resetPasswordExpires:
- *           type: string
- *           format: date
- *           description: Expiration date for reset token (optional)
+ *           enum: [CANDIDATE, EMPLOYER, ADMIN, GUEST]
  *         createdAt:
  *           type: string
  *           format: date
- *           description: Date user was created
- *         employerId:
- *           type: string
- *           description: ID of associated employer profile (for employers)
  */
 /**
  * @swagger
- * /api/users:
+ * /api/auth/register:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
@@ -78,94 +59,93 @@ const generateToken = (id: string, userType: string) => {
  *           schema:
  *             type: object
  *             required:
- *               - FirstName
- *               - LastName
+ *               - name
+ *               - email
+ *               - phone
  *               - password
- *               - UserType
+ *               - role
  *             properties:
- *               FirstName:
+ *               name:
  *                 type: string
- *                 description: First name
- *               LastName:
+ *               email:
  *                 type: string
- *                 description: Last name
+ *               phone:
+ *                 type: string
  *               password:
  *                 type: string
- *                 description: Password (will be hashed)
- *               UserType:
+ *               role:
  *                 type: string
- *                 enum: [Employer, Applicant]
- *                 description: User type
+ *                 enum: [CANDIDATE, EMPLOYER, ADMIN]
  *     responses:
  *       201:
  *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   $ref: '#/components/schemas/User'
- *       400:
- *         description: Missing required fields
- *       500:
- *         description: Server error
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
     const {
-      FirstName,
-      LastName,
-      Age,
-      Email,
-      PhoneNumber,
+      name,
+      email,
+      phone,
       password,
-      UserType,
+      role,
     } = req.body;
 
-    if (
-      !FirstName ||
-      !LastName ||
-      !Email||
-      !Age ||
-      !PhoneNumber ||
-      !password ||
-      !UserType
-    ) {
+    if (!name || !email || !phone || !password || !role) {
       return res.status(400).json({
         success: false,
-        message: "all fields are required",
+        message: "name, email, phone, password, and role are required",
       });
     }
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists"
+      });
+    }
+
+    // Get profile picture URL if uploaded
+    const avatarUrl = req.file ? req.file.path : undefined;
+
     const NewUser = await User.create({
-      FirstName,
-      LastName,
-      Email,
-      Age,
-      PhoneNumber,
+      name,
+      email,
+      phone,
       password,
-      UserType,
+      role,
+      avatar: avatarUrl
     });
+
+    const token = generateToken(NewUser._id.toString(), NewUser.role);
 
     res.status(201).json({
       success: true,
       message: "User created successfully",
-      data: NewUser,
+      token,
+      user: {
+        id: NewUser._id,
+        name: NewUser.name,
+        email: NewUser.email,
+        role: NewUser.role,
+        avatar: NewUser.avatar
+      }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({
+      success: false,
+      message: "User creation failed",
+      error: error.message || 'Unknown error',
+      details: error.stack
+    });
   }
 };
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/auth/{id}:
  *   get:
  *     summary: Get a user by ID
  *     tags: [Users]
@@ -216,7 +196,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/auth/{id}:
  *   put:
  *     summary: Update a user
  *     tags: [Users]
@@ -272,13 +252,13 @@ export const updateUser = async (req: Request, res: Response) => {
       data: user,
     });
   } catch (error) {
-    console.error("Error creating user:", error);
+    console.error("Error updating user:", error);
     res.status(500).json({ message: "sorry please try again" });
   }
 };
 /**
  * @swagger
- * /api/users/{id}:
+ * /api/auth/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [Users]
@@ -327,23 +307,54 @@ export const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ */
 // Login User
 export const loginUser = async (req: Request, res: Response) => {
   try {
-    const { UserName, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!UserName || !password) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Username and password are required"
+        message: "Email and password are required"
       });
     }
 
-    const user = await User.findOne({ UserName });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials"
+      });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account has been suspended. Please contact support."
       });
     }
 
@@ -354,7 +365,7 @@ export const loginUser = async (req: Request, res: Response) => {
         message: "Invalid credentials"
       });
     }
-    const token = generateToken(user._id.toString(), user.UserType);
+    const token = generateToken(user._id.toString(), user.role);
 
     res.status(200).json({
       success: true,
@@ -362,10 +373,10 @@ export const loginUser = async (req: Request, res: Response) => {
       token,
       user: {
         id: user._id,
-        FirstName: user.FirstName,
-        LastName: user.LastName,
-        Email: user.Email,
-        UserType: user.UserType
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar
       }
     });
   } catch (error) {
@@ -374,7 +385,74 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/users/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Server error
+ */
 // Logout User
+/**
+ * @swagger
+ * /api/users/{id}/status:
+ *   patch:
+ *     summary: Toggle user account status (Admin only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User status updated successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+export const toggleUserStatus = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User account ${user.isActive ? "activated" : "suspended"} successfully`,
+      data: { isActive: user.isActive },
+    });
+  } catch (error) {
+    console.error("Error toggling user status:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 export const logoutUser = async (req: Request, res: Response) => {
   try {
     res.status(200).json({
@@ -387,6 +465,49 @@ export const logoutUser = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * @swagger
+ * /api/users/change-password:
+ *   post:
+ *     summary: Change user password
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Current password
+ *               newPassword:
+ *                 type: string
+ *                 description: New password
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid current password
+ *       401:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 // Change Password
 export const changePassword = async (req: Request, res: Response) => {
   try {

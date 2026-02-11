@@ -9,6 +9,7 @@ import {
   deleteJob,
   getJobsByEmployer,
   searchJobs,
+  toggleJobStatus
 } from "../controllers/Job.Controller";
 
 const router = express.Router();
@@ -19,9 +20,10 @@ router.get("/search", searchJobs);
 router.get("/:id", getJobById);
 
 // Protected routes - authentication required
-router.post("/", protect, authorize('Employer'), addJob);
-router.get("/employer/:employerId", protect, authorize('Employer', 'admin'), getJobsByEmployer);
-router.put("/:id", protect, authorize('Employer'), updateJob);
-router.delete("/:id", protect, authorize('Employer', 'admin'), deleteJob);
+router.post("/", protect, authorize('EMPLOYER'), addJob);
+router.get("/employer/:employerId", protect, authorize('EMPLOYER', 'ADMIN'), getJobsByEmployer);
+router.put("/:id", protect, authorize('EMPLOYER'), updateJob);
+router.delete("/:id", protect, authorize('EMPLOYER', 'ADMIN'), deleteJob);
+router.patch("/:id/status", protect, authorize('ADMIN'), toggleJobStatus);
 
 export default router;

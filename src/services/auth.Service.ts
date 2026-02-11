@@ -13,8 +13,8 @@ export class AuthService {
   static generateJWTToken(user: any): string {
     const payload: JWTPayload = {
       id: user._id,
-      Email: user.Email,
-      UserType: user.UserType,
+      email: user.email,
+      role: user.role,
     };
 
     return jwt.sign(payload, process.env.JWT_SECRET!, {
