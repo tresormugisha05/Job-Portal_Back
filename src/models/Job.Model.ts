@@ -74,7 +74,7 @@ const JobSchema = new Schema<JobModel>({
   education: { type: String },
   tags: { type: [String], default: [] },
   deadline: { type: Date, required: true },
-  employerId: { type: String, required: true, ref: "Employer" },
+  employerId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
   featured: { type: Boolean, default: false },
   views: { type: Number, default: 0 },
   applicationCount: { type: Number, default: 0 },

@@ -92,6 +92,9 @@ export const getAllJobs = async (_: Request, res: Response) => {
 /* POST new job */
 export const addJob = async (req: Request, res: Response) => {
   try {
+    console.log('=== Job Creation Request ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    
     const {
       title,
       logo,
@@ -115,19 +118,11 @@ export const addJob = async (req: Request, res: Response) => {
     } = req.body;
 
     if (!title || !logo || !description || !requirements || !responsibilities || !category || !jobType || !type || !typeBg || !location || !deadline || !employerId) {
+      console.log('Missing required fields');
       return res.status(400).json({ success: false, message: "all required fields are needed" });
     }
- const categoryId = await Category.findOne({
-  name:"category"
- })
- if(!categoryId){
-    return res.status(404).json({success:false,message:"category not found check in the following categories",Category})
-  }
-    const employer = await Employer.findOne({ _id: employerId });
-    if (!employer || !employer.isVerified) {
-      return res.status(403).json({ success: false, message: "Your employer profile must be verified by an admin before you can post jobs." });
-    }
 
+    console.log('Creating job in database...');
     const newJob = await Job.create({
       title,
       logo,
@@ -150,6 +145,7 @@ export const addJob = async (req: Request, res: Response) => {
       featured,
     });
 
+    console.log('Job created successfully:', newJob._id);
     res.status(201).json({ success: true, message: 'Job created successfully', data: newJob });
   } catch (error) {
     console.error('Error creating job:', error);

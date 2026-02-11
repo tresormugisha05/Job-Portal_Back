@@ -7,8 +7,8 @@ import jobRoutes from "./routes/Job.Routes";
 import applicationRoutes from "./routes/Application.Routes";
 import employerRoutes from "./routes/Employer.Routes";
 import adminRoutes from "./routes/adminRoutes";
-import { specs, swaggerUi } from "./config/swagger";
 import uploadRoutes from "./routes/uploadRoutes";
+import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
 dotenv.config({ path: "./src/.env" });
 const app = express();
@@ -19,7 +19,6 @@ app.use(cors());
 
 const MONGO_URL: string =
   process.env.MONGO_URL || "mongodb://localhost:27017/job_portal";
-app.use(express.json());
 app.use(
   "/api-docs",
   swaggerUi.serve,
@@ -45,7 +44,7 @@ mongoose
     process.exit(1);
   });
 
-app.use("/api/auth", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/employers", employerRoutes);
