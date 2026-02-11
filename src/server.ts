@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import mongoose from "mongoose";
 import userRoutes from "./routes/User.Routes";
 import jobRoutes from "./routes/Job.Routes";
@@ -7,10 +8,9 @@ import applicationRoutes from "./routes/Application.Routes";
 import employerRoutes from "./routes/Employer.Routes";
 import adminRoutes from "./routes/adminRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
+import authRoutes from "./routes/auth.Routes";
 import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
-import cors from "cors";
-import { error } from "console";
 
 dotenv.config();
 const app = express();
@@ -47,12 +47,13 @@ mongoose
     process.exit(1);
   });
 
-app.use("/api/auth", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/employers", employerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
