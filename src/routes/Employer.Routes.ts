@@ -7,12 +7,14 @@ import {
   getEmployerById,
   updateEmployer,
   deleteEmployer,
-  verifyEmployer
+  verifyEmployer,
+  getTopHiringCompanies
 } from '../controllers/Employer.Controller';
 
 const router = express.Router();
 
 router.get('/', getAllEmployers);
+router.get('/top-hiring', getTopHiringCompanies);
 router.get('/:id', getEmployerById);
 router.post('/', protect, authorize('EMPLOYER'), addEmployer);
 router.put('/:id', protect, authorize('EMPLOYER'), updateEmployer);

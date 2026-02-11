@@ -7,7 +7,7 @@ export interface EmployerModel extends Document {
   website?: string;
   description: string;
   location: string;
-  contactEmail: string;
+  email: string;
   contactPhone: string;
   logo?: string;
   isVerified: boolean;
@@ -23,7 +23,7 @@ const EmployerSchema = new Schema<EmployerModel>({
   website: { type: String },
   description: { type: String, required: true },
   location: { type: String, required: true },
-  contactEmail: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
   contactPhone: { type: String, required: true },
   logo: { type: String },
   isVerified: { type: Boolean, default: false },

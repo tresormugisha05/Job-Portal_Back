@@ -44,14 +44,20 @@ export interface UserModel extends Document {
 
 const UserSchema = new Schema<UserModel>({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    sparse: true,
+    lowercase: true,
+  },
   phone: { type: String, required: true },
   password: { type: String, required: true },
   avatar: { type: String },
   role: {
     type: String,
     enum: ["CANDIDATE", "EMPLOYER", "ADMIN", "GUEST"],
-    required: true
+    required: true,
   },
   professionalTitle: { type: String },
   location: { type: String },
@@ -59,19 +65,23 @@ const UserSchema = new Schema<UserModel>({
   education: { type: String },
   skills: { type: [String], default: [] },
   summary: { type: String },
-  workExperience: [{
-    id: { type: String },
-    title: { type: String },
-    company: { type: String },
-    period: { type: String },
-    description: { type: String }
-  }],
-  educationHistory: [{
-    id: { type: String },
-    degree: { type: String },
-    institution: { type: String },
-    year: { type: String }
-  }],
+  workExperience: [
+    {
+      id: { type: String },
+      title: { type: String },
+      company: { type: String },
+      period: { type: String },
+      description: { type: String },
+    },
+  ],
+  educationHistory: [
+    {
+      id: { type: String },
+      degree: { type: String },
+      institution: { type: String },
+      year: { type: String },
+    },
+  ],
   resume: { type: String },
   initials: { type: String },
   isActive: { type: Boolean, default: true },
@@ -79,7 +89,7 @@ const UserSchema = new Schema<UserModel>({
   resetPasswordExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  employerId: { type: String, ref: 'Employer' }
+  employerId: { type: String, ref: "Employer" },
 });
 
 UserSchema.pre<UserModel>("save", async function (this: UserModel) {
