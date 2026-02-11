@@ -217,21 +217,27 @@ export const addJob = async (req: Request, res: Response) => {
     const { 
       title, 
       description,
-      company, // Added
+      company,
       requirements, 
       responsibilities,
       category, 
-      jobType, 
+      jobType,
+      type, // Frontend might send 'type' instead of 'jobType'
       location, 
       salary, 
-      experience, // Added
-      education, // Added
-      tags, // Added
+      experience,
+      education,
+      tags,
       deadline, 
-      employerId 
+      employerId,
+      image,
+      hasBanner
     } = req.body;
     
-    if(!title || !description || !company || !requirements || !responsibilities || !category || !jobType || !location || !deadline || !employerId){
+    // Use 'type' if 'jobType' is not provided
+    const finalJobType = jobType || type;
+    
+    if(!title || !description || !company || !requirements || !responsibilities || !category || !finalJobType || !location || !deadline || !employerId){
       return res.status(400).json({
         success:false,
         message:"all required fields are needed"
@@ -241,18 +247,19 @@ export const addJob = async (req: Request, res: Response) => {
     const newJob = await Job.create({
       title,
       description,
-      company, // Added
+      company,
       requirements,
       responsibilities,
       category,
-      jobType,
+      jobType: finalJobType,
       location,
       salary,
-      experience, // Added
-      education, // Added
-      tags, // Added
+      experience,
+      education,
+      tags,
       deadline,
-      employerId
+      employerId,
+      image
     });
     
     res.status(201).json({
