@@ -20,7 +20,7 @@ app.use(cors());
 
 const MONGO_URL: string =
   process.env.MONGO_URL ||
-  "mongodb+srv://tresormugisha07_db_user:G5YHr8TSpTRNNIzJ@cluster10.jeu8p4p.mongodb.net/job_portal?retryWrites=true&w=majority";
+  "mongodb://localhost:27017/job-portal-db"; // Default to local MongoDB if not provided
 
 app.use(
   "/api-docs",
