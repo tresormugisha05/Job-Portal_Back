@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import mongoose from "mongoose";
 import userRoutes from "./routes/User.Routes";
 import jobRoutes from "./routes/Job.Routes";
@@ -9,7 +10,6 @@ import adminRoutes from "./routes/adminRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
-import cors from "cors";
 
 dotenv.config();
 const app = express();
@@ -18,10 +18,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
-const MONGO_URL: string =
-  process.env.MONGO_URL ||
-  "mongodb+srv://tresormugisha07_db_user:G5YHr8TSpTRNNIzJ@cluster10.jeu8p4p.mongodb.net/job_portal?retryWrites=true&w=majority";
-
+const MONGO_URL: string = process.env.MONGO_URL || "mongodb://localhost:27017/job_portal";
+console.log("MongoDB URL:", MONGO_URL);
 app.use(
   "/api-docs",
   swaggerUi.serve,
@@ -48,7 +46,7 @@ mongoose
     process.exit(1);
   });
 
-app.use("/api/auth", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/employers", employerRoutes);

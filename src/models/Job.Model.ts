@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-export interface JobModel { }
+export interface JobModel {}
 
 export type JobCategory =
   | "Technology"
@@ -20,21 +20,19 @@ export type JobType =
 export interface JobModel extends Document {
   title: string;
   description: string;
-  requirements: string[];
-  responsibilities: string[];
+  company: string; // Added
+  requirements: string;
+  responsibilities: string;
   category: JobCategory;
-  jobType: JobType; // Keep for backend logic if needed
-  type: string;    // Frontend display (e.g., "Full-time")
-  typeBg: string;  // Frontend color class
+  jobType: JobType;
   location: string;
   salary?: string;
+  experience?: string; // Added
+  education?: string; // Added
+  tags?: string[]; // Added
   deadline: Date;
-  logo: string;
-  logoBg?: string; // Frontend color class
+  image:string;
   employerId: string;
-  experience?: string;
-  education?: string;
-  featured: boolean;
   views: number;
   applicationCount: number;
   isActive: boolean;
@@ -44,11 +42,11 @@ export interface JobModel extends Document {
 
 const JobSchema = new Schema<JobModel>({
   title: { type: String, required: true },
-  logo: { type: String, required: true },
-  logoBg: { type: String, default: "bg-blue-100 text-blue-600" },
+  image: { type: String },
   description: { type: String, required: true },
-  requirements: { type: [String], default: [] },
-  responsibilities: { type: [String], default: [] },
+  company: { type: String, required: true },
+  requirements: { type: String, required: true },
+  responsibilities: { type: String, required: true },
   category: {
     type: String,
     enum: [
@@ -68,15 +66,13 @@ const JobSchema = new Schema<JobModel>({
     enum: ["Full-time", "Part-time", "Contract", "Internship", "Remote"],
     required: true,
   },
-  type: { type: String, required: true },
-  typeBg: { type: String, required: true },
   location: { type: String, required: true },
   salary: { type: String },
-  deadline: { type: Date, required: true },
-  employerId: { type: String, required: true, ref: "Employer" },
   experience: { type: String },
   education: { type: String },
-  featured: { type: Boolean, default: false },
+  tags: [{ type: String }],
+  deadline: { type: Date, required: true },
+  employerId: { type: String, required: true, ref: "Employer" },
   views: { type: Number, default: 0 },
   applicationCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },

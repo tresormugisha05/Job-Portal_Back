@@ -4,9 +4,14 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.Model";
 
 const generateToken = (id: string, userType: string) => {
-  return jwt.sign({ id, role: userType }, process.env.JWT_SECRET!, {
-    expiresIn: "14d",
-  });
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+  }
+  return jwt.sign(
+    { id, role: userType },
+    process.env.JWT_SECRET!,
+    { expiresIn: '14d' }
+  );
 };
 
 /**
@@ -131,7 +136,7 @@ export const addUser = async (req: Request, res: Response) => {
         avatar: NewUser.avatar,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating user:", error);
     res.status(500).json({
       success: false,
