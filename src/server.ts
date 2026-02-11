@@ -1,16 +1,16 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import mongoose from 'mongoose';
-import userRoutes from './routes/User.Routes';
-import jobRoutes from './routes/Job.Routes';
-import applicationRoutes from './routes/Application.Routes';
-import employerRoutes from './routes/Employer.Routes';
-import adminRoutes from './routes/adminRoutes';
-import { specs, swaggerUi } from './config/swagger';
-import uploadRoutes from './routes/uploadRoutes';
-import { createIndexes } from './config/indexing';
-dotenv.config();
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import mongoose from "mongoose";
+import userRoutes from "./routes/User.Routes";
+import jobRoutes from "./routes/Job.Routes";
+import applicationRoutes from "./routes/Application.Routes";
+import employerRoutes from "./routes/Employer.Routes";
+import adminRoutes from "./routes/adminRoutes";
+import { specs, swaggerUi } from "./config/swagger";
+import uploadRoutes from "./routes/uploadRoutes";
+import { createIndexes } from "./config/indexing";
+dotenv.config({ path: "./src/.env" });
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(express.json({ limit: "10mb" }));
@@ -18,8 +18,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
 const MONGO_URL: string =
-  process.env.MONGO_URL ||
-  "mongodb+srv://tresormugisha07_db_user:Xx7q9ayYZZiRtEki@cluster10.jeu8p4p.mongodb.net/job_portal?retryWrites=true&w=majority";
+  process.env.DATABASE_URL || "mongodb://localhost:27017/job_portal";
 app.use(express.json());
 app.use(
   "/api-docs",
