@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 const MONGO_URL: string =
   process.env.MONGO_URL ||
-  "mongodb+srv://tresormugisha07_db_user:G5YHr8TSpTRNNIzJ@cluster10.jeu8p4p.mongodb.net/job_portal?retryWrites=true&w=majority";
+  "mongodb+srv://tresormugisha07_db_user:Xx7q9ayYZZiRtEki@cluster10.jeu8p4p.mongodb.net/job_portal?retryWrites=true&w=majority";
 app.use(express.json());
 app.use(
   "/api-docs",
