@@ -25,7 +25,7 @@ export interface JobModel extends Document {
   company: string;           // Integration field
   requirements: string[];
   responsibilities: string[];
-  category: JobCategory;
+  category: string;
   jobType: JobType;          // For backend logic
   type: string;              // Frontend display
   typeBg: string;            // Frontend color class
@@ -59,7 +59,6 @@ const JobSchema = new Schema<JobModel>({
   responsibilities: { type: [String], default: [] },
   category: {
     type: String,
-    enum: ["Technology","Healthcare","Finance","Education","Marketing","Sales","Engineering","Other"],
     required: true,
   },
   jobType: {

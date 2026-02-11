@@ -4,6 +4,9 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User.Model';
 
 const generateToken = (id: string, userType: string) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+  }
   return jwt.sign(
     { id, role: userType },
     process.env.JWT_SECRET!,

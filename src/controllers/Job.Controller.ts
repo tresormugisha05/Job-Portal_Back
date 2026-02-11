@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import Job from '../models/Job.Model';
 import Employer from '../models/Employer.Model';
-
+import Category from '../models/Category.Model';
 /**
  * @swagger
  * components:
@@ -117,7 +117,12 @@ export const addJob = async (req: Request, res: Response) => {
     if (!title || !logo || !description || !requirements || !responsibilities || !category || !jobType || !type || !typeBg || !location || !deadline || !employerId) {
       return res.status(400).json({ success: false, message: "all required fields are needed" });
     }
-
+ const categoryId = await Category.findOne({
+  name:"category"
+ })
+ if(!categoryId){
+    return res.status(404).json({success:false,message:"category not found check in the following categories",Category})
+  }
     const employer = await Employer.findOne({ _id: employerId });
     if (!employer || !employer.isVerified) {
       return res.status(403).json({ success: false, message: "Your employer profile must be verified by an admin before you can post jobs." });
