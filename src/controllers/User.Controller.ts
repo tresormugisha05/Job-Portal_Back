@@ -7,11 +7,9 @@ const generateToken = (id: string, userType: string) => {
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");
   }
-  return jwt.sign(
-    { id, role: userType },
-    process.env.JWT_SECRET!,
-    { expiresIn: '14d' }
-  );
+  return jwt.sign({ id, role: userType }, process.env.JWT_SECRET!, {
+    expiresIn: "14d",
+  });
 };
 
 /**
@@ -82,7 +80,9 @@ const generateToken = (id: string, userType: string) => {
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
-    const name = req.body.name || `${req.body.FirstName || ''} ${req.body.LastName || ''}`.trim();
+    const name =
+      req.body.name ||
+      `${req.body.FirstName || ""} ${req.body.LastName || ""}`.trim();
     const email = req.body.email || req.body.Email;
     const phone = req.body.phone || req.body.PhoneNumber;
     const password = req.body.password;

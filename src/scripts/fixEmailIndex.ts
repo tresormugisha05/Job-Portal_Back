@@ -15,11 +15,12 @@ async function fixEmailIndex() {
     }
 
     console.log('Checking existing indexes on "users" collection...');
-    const indexes = await db.collection("users").getIndexes();
-    console.log("Current indexes:", Object.keys(indexes));
+    const indexes = await db.collection("users").indexes();
+    console.log("Current indexes:", indexes.map(idx => idx.name));
 
     // Drop the old email index if it exists
-    if (indexes.email_1) {
+    const emailIndex = indexes.find(idx => idx.name === "email_1");
+    if (emailIndex) {
       console.log("Dropping old email_1 index...");
       await db.collection("users").dropIndex("email_1");
       console.log("✅ Old email_1 index dropped successfully");
