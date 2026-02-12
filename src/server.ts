@@ -52,7 +52,8 @@ mongoose
     console.error("MongoDB connection error:", err.message);
     process.exit(1);
   });
-app.use("/api/users", userRoutes);
+
+app.use("/api/auth", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/employers", employerRoutes);
