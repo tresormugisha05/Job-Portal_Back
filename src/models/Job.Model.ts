@@ -23,7 +23,7 @@ export interface JobModel extends Document {
   company: string; // Added
   requirements: string;
   responsibilities: string;
-  category: JobCategory;
+  category: string;
   jobType: JobType;
   location: string;
   salary?: string;

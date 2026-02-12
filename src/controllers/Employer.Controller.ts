@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import Employer from '../models/Employer.Model';
-import User from '../models/User.Model';
+import { Request, Response } from "express";
+import Employer from "../models/Employer.Model";
+import User from "../models/User.Model";
 
 // Helper function to check if user is an employer
 const isUserEmployer = (user: any): boolean => {
@@ -96,7 +96,7 @@ const isUserEmployer = (user: any): boolean => {
  */
 export const getAllEmployers = async (_: Request, res: Response) => {
   try {
-    const employers = await Employer.find().populate('userId');
+    const employers = await Employer.find().populate("userId");
     res.status(200).json({
       success: true,
       data: employers,
@@ -188,31 +188,41 @@ export const addEmployer = async (req: Request, res: Response) => {
       website,
       description,
       location,
-      contactEmail,
+      email,
       contactPhone,
-      userId
+      userId,
     } = req.body;
 
-    if (!companyName || !industry || !companySize || !description || !location || !contactEmail || !contactPhone || !userId) {
+    if (
+      !companyName ||
+      !industry ||
+      !companySize ||
+      !description ||
+      !location ||
+      !email ||
+      !contactPhone ||
+      !userId
+    ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required"
+        message: "All fields are required",
       });
     }
 
+    // Check if user already has an employer profile
     const existingEmployer = await Employer.findOne({ userId });
     if (existingEmployer) {
       return res.status(400).json({
         success: false,
-        message: "Employer profile already exists for this user"
+        message: "Employer profile already exists for this user",
       });
     }
 
     const user = await User.findById(userId);
-    if (!isUserEmployer(user)) {
+    if (!user || user.role !== 'EMPLOYER') {
       return res.status(400).json({
         success: false,
-        message: "User not found or not an employer type"
+        message: "User not found or not an employer type",
       });
     }
 
@@ -223,26 +233,29 @@ export const addEmployer = async (req: Request, res: Response) => {
       website,
       description,
       location,
-      contactEmail,
+      email,
       contactPhone,
-      userId
+      userId,
     });
 
-    if (user) {
-      user.employerId = newEmployer._id as any;
-      await user.save();
-    }
+    user.employerId = newEmployer._id as any;
+    await user.save();
 
     res.status(201).json({
       success: true,
-      message: 'Employer profile created successfully',
-      data: newEmployer
+      message: "Employer profile created successfully",
+      data: newEmployer,
     });
   } catch (error) {
-    console.error('Error creating employer:', error);
-    res.status(500).json({ message: "sorry please try again" });
+    console.error("Error creating employer:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating employer profile",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
+
 
 /**
  * @swagger
@@ -280,7 +293,7 @@ export const getEmployerById = async (req: Request, res: Response) => {
     if (!employer) {
       return res.status(404).json({
         success: false,
-        message: "Employer not found"
+        message: "Employer not found",
       });
     }
 
@@ -337,13 +350,25 @@ export const updateEmployer = async (req: Request, res: Response) => {
     const employer = await Employer.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
-    }).populate('userId');
+    }).populate("userId");
     if (!employer) {
       return res.status(404).json({
         success: false,
-        message: "Employer not found"
+        message: "Employer not found",
       });
     }
+
+    // Ownership check: EMPLOYER can only update their own profile
+    if ((req as any).user.role === 'EMPLOYER' && employer.userId._id.toString() !== (req as any).user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update this employer profile"
+      });
+    }
+
+    // Proceed with update
+    Object.assign(employer, req.body);
+    await employer.save();
 
     res.status(200).json({
       success: true,
@@ -352,9 +377,10 @@ export const updateEmployer = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error updating employer:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({ message: "Sorry, please try again" });
   }
 };
+
 
 /**
  * @swagger
@@ -392,11 +418,13 @@ export const deleteEmployer = async (req: Request, res: Response) => {
     if (!employer) {
       return res.status(404).json({
         success: false,
-        message: "Employer not found"
+        message: "Employer not found",
       });
     }
 
-    await User.findByIdAndUpdate(employer.userId, { $unset: { employerId: 1 } });
+    await User.findByIdAndUpdate(employer.userId, {
+      $unset: { employerId: 1 },
+    });
 
     res.status(200).json({
       success: true,
@@ -449,6 +477,39 @@ export const verifyEmployer = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error verifying employer:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const getTopHiringCompanies = async (_: Request, res: Response) => {
+  try {
+    const Job = (await import("../models/Job.Model")).default;
+    const employers = await Employer.find({ isVerified: true });
+    
+    const employersWithJobCount = await Promise.all(
+      employers.map(async (employer) => {
+        const jobCount = await Job.countDocuments({ 
+          employerId: employer._id.toString(), 
+          isActive: true 
+        });
+        return {
+          ...employer.toObject(),
+          jobCount
+        };
+      })
+    );
+
+    const topEmployers = employersWithJobCount
+      .filter(e => e.jobCount > 0)
+      .sort((a, b) => b.jobCount - a.jobCount)
+      .slice(0, 10);
+
+    res.status(200).json({
+      success: true,
+      data: topEmployers,
+    });
+  } catch (error) {
+    console.error("Error fetching top hiring companies:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

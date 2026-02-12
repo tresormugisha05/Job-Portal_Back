@@ -8,7 +8,7 @@ import {
   updateJob,
   deleteJob,
   getJobsByEmployer,
-  searchJobs
+  searchJobs,
 } from "../controllers/Job.Controller";
 
 const router = express.Router();
@@ -23,5 +23,4 @@ router.post("/", protect, authorize('EMPLOYER'), addJob);
 router.get("/employer/:employerId", protect, authorize('EMPLOYER', 'ADMIN'), getJobsByEmployer);
 router.put("/:id", protect, authorize('EMPLOYER'), updateJob);
 router.delete("/:id", protect, authorize('EMPLOYER', 'ADMIN'), deleteJob);
-
 export default router;
