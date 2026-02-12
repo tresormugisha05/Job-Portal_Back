@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import Application from '../models/Application.Model';
 import Job from '../models/Job.Model';
-
 /**
  * @swagger
  * components:
@@ -146,16 +145,34 @@ export const getAllApplications = async (_: Request, res: Response) => {
  */
 export const submitApplication = async (req: Request, res: Response) => {
   try {
-    const { jobId, userId, employerId, resume, coverLetter } = req.body;
+    // Extract fields from mixed sources
+    const jobId = req.params.jobId || req.body.jobId;
+    const userId = req.body.userId || 'temp-user-id';
+    const employerId = req.body.employerId || 'temp-employer-id';
+    const name = req.body.name;
+    const email = req.body.email;
+    
+    // Extract resume file path from uploaded files
+    let resume = '';
 
-    if (!jobId || !userId || !employerId || !resume) {
+if (req.files) {
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+  if (files.resume && files.resume[0]) {
+    resume = files.resume[0].filename;
+  }
+}
+    
+    const coverLetter = req.body.coverLetter || '';
+
+    if (!jobId || !userId || !employerId || !resume || !name || !email) {
       return res.status(400).json({
         success: false,
-        message: "jobId, userId, employerId, and resume are required"
+        message: "jobId, userId, employerId, name, email, and resume are required"
       })
     }
 
-    const existingApplication = await Application.findOne({ jobId, userId });
+    const existingApplication = await Application.findOne({ jobId });
     if (existingApplication) {
       return res.status(400).json({
         success: false,
@@ -182,6 +199,8 @@ export const submitApplication = async (req: Request, res: Response) => {
       jobId,
       userId,
       employerId,
+      name,
+      email,
       resume,
       coverLetter
     });

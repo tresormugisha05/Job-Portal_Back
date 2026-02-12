@@ -6,6 +6,8 @@ export interface ApplicationModel extends Document {
   jobId: string;
   userId: string;
   employerId: string;
+  name: string;
+  email: string;
   resume: string;
   coverLetter?: string;
   status: ApplicationStatus;
@@ -18,6 +20,8 @@ const ApplicationSchema = new Schema<ApplicationModel>({
   jobId: { type: String, required: true, ref: 'Job' },
   userId: { type: String, required: true, ref: 'User' },
   employerId: { type: String, required: true, ref: 'Employer' },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
   resume: { type: String, required: true },
   coverLetter: { type: String },
   status: {
