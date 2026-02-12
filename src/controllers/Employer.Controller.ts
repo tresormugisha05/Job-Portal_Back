@@ -209,6 +209,7 @@ export const addEmployer = async (req: Request, res: Response) => {
       });
     }
 
+    // Check if user already has an employer profile
     const existingEmployer = await Employer.findOne({ userId });
     if (existingEmployer) {
       return res.status(400).json({
@@ -218,7 +219,7 @@ export const addEmployer = async (req: Request, res: Response) => {
     }
 
     const user = await User.findById(userId);
-    if (!isUserEmployer(user)) {
+    if (!user || user.role !== 'EMPLOYER') {
       return res.status(400).json({
         success: false,
         message: "User not found or not an employer type",
@@ -237,10 +238,8 @@ export const addEmployer = async (req: Request, res: Response) => {
       userId,
     });
 
-    if (user) {
-      user.employerId = newEmployer._id as any;
-      await user.save();
-    }
+    user.employerId = newEmployer._id as any;
+    await user.save();
 
     res.status(201).json({
       success: true,
@@ -256,6 +255,7 @@ export const addEmployer = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 /**
  * @swagger
@@ -358,6 +358,18 @@ export const updateEmployer = async (req: Request, res: Response) => {
       });
     }
 
+    // Ownership check: EMPLOYER can only update their own profile
+    if ((req as any).user.role === 'EMPLOYER' && employer.userId._id.toString() !== (req as any).user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update this employer profile"
+      });
+    }
+
+    // Proceed with update
+    Object.assign(employer, req.body);
+    await employer.save();
+
     res.status(200).json({
       success: true,
       message: "Employer updated successfully",
@@ -365,9 +377,10 @@ export const updateEmployer = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error updating employer:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({ message: "Sorry, please try again" });
   }
 };
+
 
 /**
  * @swagger
