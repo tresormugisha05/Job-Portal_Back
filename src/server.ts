@@ -8,7 +8,6 @@ import applicationRoutes from "./routes/Application.Routes";
 import employerRoutes from "./routes/Employer.Routes";
 import adminRoutes from "./routes/adminRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
-import authRoutes from "./routes/auth.Routes";
 import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
 
@@ -53,7 +52,6 @@ app.use("/api/applications", applicationRoutes);
 app.use("/api/employers", employerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

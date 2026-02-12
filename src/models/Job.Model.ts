@@ -20,19 +20,19 @@ export type JobType =
 export interface JobModel extends Document {
   title: string;
   description: string;
-  company: string; // Added
-  requirements: string;
-  responsibilities: string;
+  company: string;
+  requirements: string[];
+  responsibilities: string[];
   category: JobCategory;
   jobType: JobType;
   location: string;
   salary?: string;
-  experience?: string; // Added
-  education?: string; // Added
-  tags?: string[]; // Added
+  experience?: string;
+  education?: string;
+  tags?: string[];
   deadline: Date;
   image:string;
-  employerId: string;
+  employerId: mongoose.Types.ObjectId;
   views: number;
   applicationCount: number;
   isActive: boolean;
@@ -45,8 +45,8 @@ const JobSchema = new Schema<JobModel>({
   image: { type: String },
   description: { type: String, required: true },
   company: { type: String, required: true },
-  requirements: { type: String, required: true },
-  responsibilities: { type: String, required: true },
+  requirements: [{ type: String, required: true }],
+  responsibilities: [{ type: String, required: true }],
   category: {
     type: String,
     enum: [
@@ -72,7 +72,7 @@ const JobSchema = new Schema<JobModel>({
   education: { type: String },
   tags: [{ type: String }],
   deadline: { type: Date, required: true },
-  employerId: { type: String, required: true, ref: "Employer" },
+  employerId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
   views: { type: Number, default: 0 },
   applicationCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
