@@ -1,17 +1,15 @@
-import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import User from '../models/User.Model';
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import User from "../models/User.Model";
 
 const generateToken = (id: string, userType: string) => {
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined in environment variables");
   }
-  return jwt.sign(
-    { id, role: userType },
-    process.env.JWT_SECRET!,
-    { expiresIn: '14d' }
-  );
+  return jwt.sign({ id, role: userType }, process.env.JWT_SECRET!, {
+    expiresIn: "14d",
+  });
 };
 
 /**
@@ -82,13 +80,13 @@ const generateToken = (id: string, userType: string) => {
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
-    const {
-      name,
-      email,
-      phone,
-      password,
-      role,
-    } = req.body;
+    const name =
+      req.body.name ||
+      `${req.body.FirstName || ""} ${req.body.LastName || ""}`.trim();
+    const email = req.body.email || req.body.Email;
+    const phone = req.body.phone || req.body.PhoneNumber;
+    const password = req.body.password;
+    const role = req.body.role || req.body.UserType?.toUpperCase();
 
     if (!name || !email || !phone || !password || !role) {
       return res.status(400).json({
@@ -97,25 +95,31 @@ export const addUser = async (req: Request, res: Response) => {
       });
     }
 
+    // Normalize email
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User with this email already exists"
+        message: "User with this email already exists",
       });
     }
 
     // Get profile picture URL if uploaded
     const avatarUrl = req.file ? req.file.path : undefined;
 
+    // Normalize role to uppercase
+    const normalizedRole = role.toUpperCase();
+
     const NewUser = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       phone,
       password,
-      role,
-      avatar: avatarUrl
+      role: normalizedRole,
+      avatar: avatarUrl,
     });
 
     const token = generateToken(NewUser._id.toString(), NewUser.role);
@@ -129,16 +133,15 @@ export const addUser = async (req: Request, res: Response) => {
         name: NewUser.name,
         email: NewUser.email,
         role: NewUser.role,
-        avatar: NewUser.avatar
-      }
+        avatar: NewUser.avatar,
+      },
     });
   } catch (error: any) {
     console.error("Error creating user:", error);
     res.status(500).json({
       success: false,
       message: "User creation failed",
-      error: error.message || 'Unknown error',
-      details: error.stack
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
@@ -339,22 +342,22 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required"
+        message: "Email and password are required",
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials"
+        message: "Invalid credentials",
       });
     }
 
     if (user.isActive === false) {
       return res.status(403).json({
         success: false,
-        message: "Your account has been suspended. Please contact support."
+        message: "Your account has been suspended. Please contact support.",
       });
     }
 
@@ -362,25 +365,25 @@ export const loginUser = async (req: Request, res: Response) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials"
+        message: "Invalid credentials",
       });
     }
     const token = generateToken(user._id.toString(), user.role);
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: user.avatar
-      }
+        avatar: user.avatar,
+      },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Login failed" });
   }
 };
@@ -457,10 +460,10 @@ export const logoutUser = async (req: Request, res: Response) => {
   try {
     res.status(200).json({
       success: true,
-      message: 'Logout successful'
+      message: "Logout successful",
     });
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
     res.status(500).json({ message: "Logout failed" });
   }
 };
@@ -514,19 +517,22 @@ export const changePassword = async (req: Request, res: Response) => {
     const { currentPassword, newPassword } = req.body;
     const userId = (req as any).user.id;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("+password");
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isCurrentPasswordValid) {
       return res.status(400).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: "Current password is incorrect",
       });
     }
 
@@ -535,10 +541,10 @@ export const changePassword = async (req: Request, res: Response) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password changed successfully'
+      message: "Password changed successfully",
     });
   } catch (error) {
-    console.error('Change password error:', error);
+    console.error("Change password error:", error);
     res.status(500).json({ message: "Password change failed" });
   }
 };

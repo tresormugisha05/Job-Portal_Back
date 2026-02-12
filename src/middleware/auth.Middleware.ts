@@ -1,8 +1,15 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { AuthRequest } from "../utils/types";
+import Employer from "../models/Employer.Model";
+import User from "../models/User.Model";
 import dotenv from "dotenv";
 dotenv.config();
+
+interface JwtPayload {
+  id: string;
+  role: string;
+}
 
 export const protect = (
   req: AuthRequest,
