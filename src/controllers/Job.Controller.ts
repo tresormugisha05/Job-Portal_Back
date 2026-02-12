@@ -474,7 +474,7 @@ export const deleteJob = async (req: Request, res: Response) => {
  */
 export const getJobsByEmployer = async (req: Request, res: Response) => {
   try {
-    const employerIdStr = req.params.employerId;
+    const employerIdStr = Array.isArray(req.params.employerId) ? req.params.employerId[0] : req.params.employerId;
     
     if (!mongoose.Types.ObjectId.isValid(employerIdStr)) {
       return res.status(400).json({ message: "Invalid employer ID" });
