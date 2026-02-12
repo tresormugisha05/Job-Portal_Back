@@ -7,19 +7,20 @@ import jobRoutes from "./routes/Job.Routes";
 import applicationRoutes from "./routes/Application.Routes";
 import employerRoutes from "./routes/Employer.Routes";
 import adminRoutes from "./routes/adminRoutes";
-import { specs, swaggerUi } from "./config/swagger";
 import uploadRoutes from "./routes/uploadRoutes";
+import authRoutes from "./routes/auth.Routes";
+import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
-dotenv.config({ path: "./src/.env" });
+
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
-const MONGO_URL: string =
-  process.env.MONGO_URL || "mongodb://localhost:27017/job_portal";
-app.use(express.json());
+const MONGO_URL: string = process.env.MONGO_URL || "mongodb://localhost:27017/job_portal";
+console.log("MongoDB URL:", MONGO_URL);
 app.use(
   "/api-docs",
   swaggerUi.serve,
@@ -38,6 +39,7 @@ mongoose
   .connect(MONGO_URL)
   .then(async () => {
     console.log("Connected to MongoDB Atlas");
+    // Create indexes after connection
     await createIndexes();
   })
   .catch((err) => {
@@ -45,12 +47,13 @@ mongoose
     process.exit(1);
   });
 
-app.use("/api/auth", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/employers", employerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
