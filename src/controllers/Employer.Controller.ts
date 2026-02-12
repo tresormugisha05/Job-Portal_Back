@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+﻿import { Request, Response } from 'express';
 import Employer from '../models/Employer.Model';
 import User from '../models/User.Model';
 
@@ -200,19 +200,20 @@ export const addEmployer = async (req: Request, res: Response) => {
       });
     }
 
+    // Check if user already has an employer profile
     const existingEmployer = await Employer.findOne({ userId });
     if (existingEmployer) {
       return res.status(400).json({
         success: false,
-        message: "Employer profile already exists for this user"
+        message: "You already have an employer profile"
       });
     }
 
     const user = await User.findById(userId);
-    if (!isUserEmployer(user)) {
+    if (!user || user.role !== 'EMPLOYER') {
       return res.status(400).json({
         success: false,
-        message: "User not found or not an employer type"
+        message: "User not found or not an employer"
       });
     }
 
@@ -228,10 +229,8 @@ export const addEmployer = async (req: Request, res: Response) => {
       userId
     });
 
-    if (user) {
-      user.employerId = newEmployer._id as any;
-      await user.save();
-    }
+    user.employerId = newEmployer._id as any;
+    await user.save();
 
     res.status(201).json({
       success: true,
@@ -240,9 +239,10 @@ export const addEmployer = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error creating employer:', error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({ message: "Sorry, please try again" });
   }
 };
+
 
 /**
  * @swagger
@@ -334,16 +334,25 @@ export const getEmployerById = async (req: Request, res: Response) => {
  */
 export const updateEmployer = async (req: Request, res: Response) => {
   try {
-    const employer = await Employer.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    }).populate('userId');
+    const employer = await Employer.findById(req.params.id).populate('userId');
     if (!employer) {
       return res.status(404).json({
         success: false,
         message: "Employer not found"
       });
     }
+
+    // Ownership check: EMPLOYER can only update their own profile
+    if ((req as any).user.role === 'EMPLOYER' && employer.userId._id.toString() !== (req as any).user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not allowed to update this employer profile"
+      });
+    }
+
+    // Proceed with update
+    Object.assign(employer, req.body);
+    await employer.save();
 
     res.status(200).json({
       success: true,
@@ -352,9 +361,10 @@ export const updateEmployer = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error updating employer:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({ message: "Sorry, please try again" });
   }
 };
+
 
 /**
  * @swagger
