@@ -145,12 +145,28 @@ export const getAllApplications = async (_: Request, res: Response) => {
  */
 export const submitApplication = async (req: Request, res: Response) => {
   try {
+    console.log('=== Application Submission Debug ===');
+    console.log('req.params:', req.params);
+    console.log('req.body:', req.body);
+    console.log('req.files:', req.files);
+    
     // Extract fields from mixed sources
     const jobId = req.params.jobId || req.body.jobId;
     const userId = req.body.userId || 'temp-user-id';
     const employerId = req.body.employerId || 'temp-employer-id';
     const name = req.body.name;
     const email = req.body.email;
+    
+    console.log('Extracted values:', { jobId, userId, employerId, name, email });
+    
+    // Validate ObjectId format
+    if (!jobId || !jobId.match(/^[0-9a-fA-F]{24}$/)) {
+      console.log('Invalid jobId format:', jobId);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid job ID format"
+      });
+    }
     
     // Extract resume file path from uploaded files
     let resume = '';
@@ -159,21 +175,29 @@ if (req.files) {
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
   if (files.resume && files.resume[0]) {
-    resume = files.resume[0].filename;
+    // Cloudinary stores the URL in 'path' property
+    resume = files.resume[0].path || files.resume[0].filename;
+    console.log('Resume file found:', resume);
+  } else {
+    console.log('No resume file in req.files');
   }
+} else {
+  console.log('req.files is undefined');
 }
     
     const coverLetter = req.body.coverLetter || '';
 
     if (!jobId || !userId || !employerId || !resume || !name || !email) {
+      console.log('Validation failed - missing fields');
       return res.status(400).json({
         success: false,
         message: "jobId, userId, employerId, name, email, and resume are required"
       })
     }
 
-    const existingApplication = await Application.findOne({ jobId });
+    const existingApplication = await Application.findOne({ jobId, userId });
     if (existingApplication) {
+      console.log('User already applied for this job');
       return res.status(400).json({
         success: false,
         message: "You have already applied for this job"
@@ -182,6 +206,7 @@ if (req.files) {
 
     const job = await Job.findById(jobId);
     if (!job || !job.isActive) {
+      console.log('Job not found or inactive');
       return res.status(404).json({
         success: false,
         message: "Job not found or no longer active"
@@ -189,6 +214,7 @@ if (req.files) {
     }
 
     if (new Date() > job.deadline) {
+      console.log('Application deadline passed');
       return res.status(400).json({
         success: false,
         message: "Application deadline has passed"
@@ -208,13 +234,16 @@ if (req.files) {
     job.applicationCount += 1;
     await job.save();
 
+    console.log('Application created successfully:', newApplication._id);
     res.status(201).json({
       success: true,
       message: 'Application submitted successfully',
       data: newApplication
     });
   } catch (error) {
-    console.error('Error submitting application:', error);
+    console.error('=== Error submitting application ===');
+    console.error('Error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
     res.status(500).json({ message: "sorry please try again" });
   }
 };
