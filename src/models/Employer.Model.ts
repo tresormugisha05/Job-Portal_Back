@@ -11,6 +11,7 @@ export interface EmployerModel extends Document {
   contactPhone: string;
   logo?: string;
   isVerified: boolean;
+  isActive: boolean;
   userId: Types.ObjectId; // ✅ Use ObjectId
   createdAt: Date;
   updatedAt: Date;
@@ -28,6 +29,7 @@ const EmployerSchema = new Schema<EmployerModel>(
     contactPhone: { type: String, required: true },
     logo: { type: String },
     isVerified: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: true },
 
     // ✅ Proper reference to User
     userId: {

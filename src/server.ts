@@ -10,8 +10,9 @@ import adminRoutes from "./routes/adminRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
+import path from "path";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
