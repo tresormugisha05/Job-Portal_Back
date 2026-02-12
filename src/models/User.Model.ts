@@ -1,21 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+
 export type UserRole = "CANDIDATE" | "EMPLOYER" | "ADMIN" | "GUEST";
-
-export interface WorkExperience {
-  id: string;
-  title: string;
-  company: string;
-  period: string;
-  description: string;
-}
-
-export interface EducationHistory {
-  id: string;
-  degree: string;
-  institution: string;
-  year: string;
-}
 
 export interface UserModel extends Document {
   name: string;
@@ -30,71 +16,92 @@ export interface UserModel extends Document {
   education?: string;
   skills: string[];
   summary?: string;
-  workExperience: WorkExperience[];
-  educationHistory: EducationHistory[];
+  workExperience: any[];
+  educationHistory: any[];
   resume?: string;
   initials?: string;
   isActive: boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  employerId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
-  employerId?: string;
 }
 
-const UserSchema = new Schema<UserModel>({
-  name: { type: String, required: true },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    sparse: true,
-    lowercase: true,
-  },
-  phone: { type: String, required: true },
-  password: { type: String, required: true },
-  avatar: { type: String },
-  role: {
-    type: String,
-    enum: ["CANDIDATE", "EMPLOYER", "ADMIN", "GUEST"],
-    required: true,
-  },
-  professionalTitle: { type: String },
-  location: { type: String },
-  experience: { type: String },
-  education: { type: String },
-  skills: { type: [String], default: [] },
-  summary: { type: String },
-  workExperience: [
-    {
-      id: { type: String },
-      title: { type: String },
-      company: { type: String },
-      period: { type: String },
-      description: { type: String },
-    },
-  ],
-  educationHistory: [
-    {
-      id: { type: String },
-      degree: { type: String },
-      institution: { type: String },
-      year: { type: String },
-    },
-  ],
-  resume: { type: String },
-  initials: { type: String },
-  isActive: { type: Boolean, default: true },
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  employerId: { type: String, ref: "Employer" },
-});
+const UserSchema = new Schema<UserModel>(
+  {
+    name: { type: String, required: true, trim: true },
 
-UserSchema.pre<UserModel>("save", async function (this: UserModel) {
-  this.updatedAt = new Date();
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"]
+    },
+
+    phone: { type: String, required: true },
+
+    password: {
+      type: String,
+      required: true,
+      select: false
+    },
+
+    avatar: { type: String },
+
+    role: {
+      type: String,
+      enum: ["CANDIDATE", "EMPLOYER", "ADMIN", "GUEST"],
+      required: true
+    },
+
+    professionalTitle: { type: String },
+    location: { type: String },
+    experience: { type: String },
+    education: { type: String },
+
+    skills: { type: [String], default: [] },
+
+    summary: { type: String },
+
+    workExperience: [
+      {
+        title: String,
+        company: String,
+        period: String,
+        description: String
+      }
+    ],
+
+    educationHistory: [
+      {
+        degree: String,
+        institution: String,
+        year: String
+      }
+    ],
+
+    resume: { type: String },
+    initials: { type: String },
+
+    isActive: { type: Boolean, default: true },
+
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+
+    employerId: {
+      type: Schema.Types.ObjectId,
+      ref: "Employer"
+    }
+  },
+  { timestamps: true }
+);
+
+UserSchema.pre<UserModel>("save", async function () {
   if (!this.isModified("password")) return;
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
