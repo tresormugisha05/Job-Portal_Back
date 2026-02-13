@@ -19,7 +19,7 @@ router.get('/top-hiring', getTopHiringCompanies);
 router.get('/:id', getEmployerById);
 
 // Create employer profile (only EMPLOYER role, user cannot have multiple profiles)
-router.post('/', protect, authorize('EMPLOYER'), addEmployer);
+router.post('/', addEmployer);
 
 // Update employer profile
 // Only the EMPLOYER who owns the profile can update it (ownership checked in controller)
