@@ -96,7 +96,7 @@ const isUserEmployer = (user: any): boolean => {
  */
 export const getAllEmployers = async (_: Request, res: Response) => {
   try {
-    const employers = await Employer.find().populate("userId");
+    const employers = await Employer.find();
     res.status(200).json({
       success: true,
       data: employers,
