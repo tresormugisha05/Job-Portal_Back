@@ -12,7 +12,6 @@ export const createIndexes = async () => {
     await mongoose.connection.collection('jobs').createIndex({ category: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ jobType: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ location: 1 }).catch(() => {});
-    await mongoose.connection.collection('jobs').createIndex({ employerId: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ deadline: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ isActive: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ createdAt: -1 }).catch(() => {});
