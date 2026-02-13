@@ -177,10 +177,6 @@ export const addEmployer = async (req: Request, res: Response) => {
     const {
       companyName,
       password,
-      companySize,
-      website,
-      description,
-      location,
       email,
       contactPhone,
     } = req.body;
@@ -188,9 +184,6 @@ export const addEmployer = async (req: Request, res: Response) => {
     if (
       !companyName ||
       !password||
-      !companySize ||
-      !description ||
-      !location ||
       !email ||
       !contactPhone
     ) {
@@ -212,10 +205,6 @@ export const addEmployer = async (req: Request, res: Response) => {
     const newEmployer = await Employer.create({
       companyName,
       password,
-      companySize,
-      website,
-      description,
-      location,
       email,
       contactPhone,
     });
