@@ -19,16 +19,19 @@ async function fixEmployerIndex() {
 
         console.log('Checking existing indexes on "employers" collection...');
         const indexes = await db.collection("employers").indexes();
-        console.log("Current indexes:", indexes.map(idx => idx.name));
+        const indexNames = indexes.map(idx => idx.name);
+        console.log("Current indexes:", indexNames);
 
-        // Drop the old EmployerId index if it exists
-        const employerIdIndex = indexes.find(idx => idx.name === "EmployerId_1");
-        if (employerIdIndex) {
-            console.log("Found EmployerId_1 index. Dropping it...");
-            await db.collection("employers").dropIndex("EmployerId_1");
-            console.log("✅ EmployerId_1 index dropped successfully");
-        } else {
-            console.log("ℹ️ EmployerId_1 index not found. It might have already been dropped or never existed.");
+        const indexesToDrop = ["EmployerId_1", "userId_1"];
+
+        for (const indexName of indexesToDrop) {
+            if (indexNames.includes(indexName)) {
+                console.log(`Found ${indexName} index. Dropping it...`);
+                await db.collection("employers").dropIndex(indexName);
+                console.log(`✅ ${indexName} index dropped successfully`);
+            } else {
+                console.log(`ℹ️ ${indexName} index not found.`);
+            }
         }
 
         console.log("✅ Index cleanup complete!");
