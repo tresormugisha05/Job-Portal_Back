@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 export interface EmployerModel extends Document {
-  EmployerId:mongoose.Types.ObjectId
   companyName: string;
   password: string;
   companySize?: string;
@@ -9,6 +8,7 @@ export interface EmployerModel extends Document {
   description?: string;
   location?: string;
   email: string;
+  userType:string
   contactPhone: string;
   logo?: string;
   isVerified: boolean;
@@ -22,11 +22,11 @@ export interface EmployerModel extends Document {
 
 const EmployerSchema = new Schema<EmployerModel>(
   {
-    EmployerId:{type:mongoose.Schema.Types.ObjectId,required:true,unique:true},
     companyName: { type: String, required: true },
     password: { type: String, required: true, select: false },
     companySize: { type: String },
     website: { type: String, default: "" },
+    userType:{type:String,default:"EMPLOYER"},
     description: { type: String, required: false, default: "" },
     location: { type: String, required: false, default: "" },
     email: { type: String, unique: true, required: true },

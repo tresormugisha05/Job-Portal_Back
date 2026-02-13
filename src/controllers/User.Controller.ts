@@ -79,6 +79,7 @@ const generateToken = (id: string, userType: string) => {
  *         description: User created successfully
  */
 export const addUser = async (req: Request, res: Response) => {
+  console.log(process.env.JWT_SECRET);
   try {
     const name =
       req.body.name ||

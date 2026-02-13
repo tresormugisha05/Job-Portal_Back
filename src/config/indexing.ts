@@ -12,7 +12,6 @@ export const createIndexes = async () => {
     await mongoose.connection.collection('jobs').createIndex({ category: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ jobType: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ location: 1 }).catch(() => {});
-    await mongoose.connection.collection('jobs').createIndex({ employerId: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ deadline: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ isActive: 1 }).catch(() => {});
     await mongoose.connection.collection('jobs').createIndex({ createdAt: -1 }).catch(() => {});
@@ -21,7 +20,6 @@ export const createIndexes = async () => {
     // Applications indexes
     await mongoose.connection.collection('applications').createIndex({ userId: 1 }).catch(() => {});
     await mongoose.connection.collection('applications').createIndex({ jobId: 1 }).catch(() => {});
-    await mongoose.connection.collection('applications').createIndex({ employerId: 1 }).catch(() => {});
     await mongoose.connection.collection('applications').createIndex({ status: 1 }).catch(() => {});
     await mongoose.connection.collection('applications').createIndex({ submissionDate: -1 }).catch(() => {});
     await mongoose.connection.collection('applications').createIndex({ userId: 1, jobId: 1 }, { unique: true }).catch(() => {});

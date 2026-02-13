@@ -1,5 +1,16 @@
 import { Request, Response } from "express";
 import Employer from "../models/Employer.Model";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+
+const generateToken = (id: string, userType: string) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+  }
+  return jwt.sign({ id, role: userType }, process.env.JWT_SECRET!, {
+    expiresIn: "14d",
+  });
+};
 /**
  * @swagger
  * components:
@@ -198,7 +209,7 @@ export const addEmployer = async (req: Request, res: Response) => {
     if (existingEmployer) {
       return res.status(400).json({
         success: false,
-        message: "Employer Email already exists for this user",
+        message: "Email already exists for this Employer",
       });
     }
 
@@ -477,4 +488,4 @@ export const getTopHiringCompanies = async (_: Request, res: Response) => {
     console.error("Error fetching top hiring companies:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
-};
+}; 
