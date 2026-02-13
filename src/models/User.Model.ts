@@ -23,7 +23,6 @@ export interface UserModel extends Document {
   isActive: boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-  employerId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -90,11 +89,6 @@ const UserSchema = new Schema<UserModel>(
 
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-
-    employerId: {
-      type: Schema.Types.ObjectId,
-      ref: "Employer"
-    }
   },
   { timestamps: true }
 );

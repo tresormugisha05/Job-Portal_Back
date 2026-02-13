@@ -11,8 +11,8 @@ export interface EmployerModel extends Document {
   contactPhone: string;
   logo?: string;
   isVerified: boolean;
+  jobsPosted:[Types.ObjectId]
   isActive: boolean;
-  userId: Types.ObjectId; // ✅ Use ObjectId
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,17 +27,10 @@ const EmployerSchema = new Schema<EmployerModel>(
     location: { type: String, required: true },
     email: { type: String, required: true },
     contactPhone: { type: String, required: true },
+    jobsPosted:{type:[Types.ObjectId], ref:'Job'},
     logo: { type: String },
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
-
-    // ✅ Proper reference to User
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      unique: true, // ensures one employer profile per user
-    },
   },
   {
     timestamps: true, // ✅ Automatically handles createdAt & updatedAt
