@@ -3,6 +3,8 @@ import { protect } from '../middleware/auth.Middleware';
 import { authorize } from '../middleware/authorize';
 import {
   getAllEmployers,
+  registerEmployer,
+  loginEmployer,
   addEmployer,
   getEmployerById,
   updateEmployer,
@@ -13,13 +15,17 @@ import {
 
 const router = express.Router();
 
+// Public routes
+router.post('/register', registerEmployer);
+router.post('/login', loginEmployer);
+
 // Public route: get all employers
-router.get('/', getAllEmployers);
+router.get('/all', getAllEmployers);
 router.get('/top-hiring', getTopHiringCompanies);
 router.get('/:id', getEmployerById);
 
-// Create employer profile (only EMPLOYER role, user cannot have multiple profiles)
-router.post('/', addEmployer);
+// Create employer profile (Admin only now, since public registration is handled via /register)
+router.post('/', protect, authorize('ADMIN'), addEmployer);
 
 // Update employer profile
 // Only the EMPLOYER who owns the profile can update it (ownership checked in controller)

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
-export type UserRole = "CANDIDATE" | "EMPLOYER" | "ADMIN" | "GUEST";
+export type UserRole = "CANDIDATE" | "ADMIN" | "GUEST";
 
 export interface UserModel extends Document {
   name: string;
@@ -52,7 +52,7 @@ const UserSchema = new Schema<UserModel>(
 
     role: {
       type: String,
-      enum: ["CANDIDATE", "EMPLOYER", "ADMIN", "GUEST"],
+      enum: ["CANDIDATE", "ADMIN", "GUEST"],
       required: true
     },
 
@@ -89,6 +89,8 @@ const UserSchema = new Schema<UserModel>(
 
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+
+
   },
   { timestamps: true }
 );
