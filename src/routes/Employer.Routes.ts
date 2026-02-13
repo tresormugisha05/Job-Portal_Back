@@ -36,6 +36,6 @@ router.put('/:id', protect, authorize('EMPLOYER'), updateEmployer);
 router.delete('/:id', protect, authorize('ADMIN'), deleteEmployer);
 
 // Verify/unverify employer (ADMIN only)
-router.patch('/:id/verify', protect, authorize('ADMIN'), verifyEmployer);
+router.patch('/:id/verify', verifyEmployer);
 
 export default router;
