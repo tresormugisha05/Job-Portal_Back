@@ -22,15 +22,15 @@ export interface EmployerModel extends Document {
 const EmployerSchema = new Schema<EmployerModel>(
   {
     companyName: { type: String, required: true },
-    password: { type: String, required: true ,select:false},
-    companySize: { type: String},
-    website: { type: String },
-    description: { type: String, required: false },
-    location: { type: String, required: false },
-    email: { type: String,unique:true, required: true },
+    password: { type: String, required: true, select: false },
+    companySize: { type: String },
+    website: { type: String, default: "" },
+    description: { type: String, required: false, default: "" },
+    location: { type: String, required: false, default: "" },
+    email: { type: String, unique: true, required: true },
     contactPhone: { type: String, required: true },
-    jobsPosted:{type:[Types.ObjectId], ref:'Job'},
-    logo: { type: String },
+    jobsPosted: { type: [Types.ObjectId], ref: "Job" },
+    logo: { type: String, default: "" },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     isVerified: { type: Boolean, default: false },
@@ -38,7 +38,7 @@ const EmployerSchema = new Schema<EmployerModel>(
   },
   {
     timestamps: true, // ✅ Automatically handles createdAt & updatedAt
-  }
+  },
 );
 
 EmployerSchema.pre<EmployerModel>("save", async function () {
