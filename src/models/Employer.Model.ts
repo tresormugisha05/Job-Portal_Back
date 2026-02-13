@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 export interface EmployerModel extends Document {
   companyName: string;
   password:string;
-  companySize: string;
+  companySize?: string;
   website?: string;
   description?: string;
   location?: string;
@@ -21,7 +21,7 @@ const EmployerSchema = new Schema<EmployerModel>(
   {
     companyName: { type: String, required: true },
     password: { type: String, required: true ,select:false},
-    companySize: { type: String, required: true },
+    companySize: { type: String},
     website: { type: String },
     description: { type: String, required: false },
     location: { type: String, required: false },
