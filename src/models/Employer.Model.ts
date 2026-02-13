@@ -5,8 +5,8 @@ export interface EmployerModel extends Document {
   password:string;
   companySize: string;
   website?: string;
-  description: string;
-  location: string;
+  description?: string;
+  location?: string;
   email: string;
   contactPhone: string;
   logo?: string;
@@ -23,8 +23,8 @@ const EmployerSchema = new Schema<EmployerModel>(
     password: { type: String, required: true ,select:false},
     companySize: { type: String, required: true },
     website: { type: String },
-    description: { type: String, required: true },
-    location: { type: String, required: true },
+    description: { type: String, required: false },
+    location: { type: String, required: false },
     email: { type: String, required: true },
     contactPhone: { type: String, required: true },
     jobsPosted:{type:[Types.ObjectId], ref:'Job'},
