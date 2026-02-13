@@ -5,11 +5,12 @@ dotenv.config();
 
 async function fixEmployerIndex() {
     try {
-        const mongoUrl = process.env.MONGO_URL || "mongodb+srv://teta:2E5Vr9Kz5kZboBwK@cluster0.62mwlgl.mongodb.net/?appName=Cluster0"; // Fallback to the one provided by user if .env is missing it
+        // Explicitly using the Cloud MongoDB URL provided by the user and targeting the 'test' database
+        const mongoUrl = "mongodb+srv://teta:2E5Vr9Kz5kZboBwK@cluster0.62mwlgl.mongodb.net/test?appName=Cluster0";
 
-        console.log("Connecting to MongoDB...");
+        console.log("Connecting to Cloud MongoDB (test database)...");
         await mongoose.connect(mongoUrl);
-        console.log("Connected to MongoDB");
+        console.log("Connected to Cloud MongoDB");
 
         const db = mongoose.connection.db;
         if (!db) {
