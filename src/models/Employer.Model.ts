@@ -1,18 +1,26 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+
 export interface EmployerModel extends Document {
-  companyName: string;
+  // Authentication fields
+  // name removed
+  email: string;
   password: string;
+  phone: string;
+
+  // Company fields
+  companyName: string;
+  industry?: string;
   companySize?: string;
   website?: string;
   description?: string;
   location?: string;
-  email: string;
-  userType:string
-  contactPhone: string;
+  // contactPhone removed
   logo?: string;
+
+  // Status fields
   isVerified: boolean;
-  jobsPosted: [Types.ObjectId];
+  jobsPosted: [mongoose.Types.ObjectId];
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   isActive: boolean;
@@ -22,27 +30,37 @@ export interface EmployerModel extends Document {
 
 const EmployerSchema = new Schema<EmployerModel>(
   {
-    companyName: { type: String, required: true },
+    // Authentication fields
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"],
+    },
     password: { type: String, required: true, select: false },
+    phone: { type: String, required: true },
+
+    // Company fields
+    companyName: { type: String, required: true },
+    industry: { type: String },
     companySize: { type: String },
-    website: { type: String, default: "" },
-    userType:{type:String,default:"EMPLOYER"},
-    description: { type: String, required: false, default: "" },
-    location: { type: String, required: false, default: "" },
-    email: { type: String, unique: true, required: true },
-    contactPhone: { type: String, required: true },
-    jobsPosted: { type: [Types.ObjectId], ref: "Job" },
-    logo: { type: String, default: "" },
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
+    website: { type: String },
+    description: { type: String },
+    location: { type: String },
+    logo: { type: String },
+
+    // Status fields
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
   },
   {
-    timestamps: true, // ✅ Automatically handles createdAt & updatedAt
+    timestamps: true,
   },
 );
 
+// Hash password before saving
 EmployerSchema.pre<EmployerModel>("save", async function () {
   if (!this.isModified("password")) return;
 

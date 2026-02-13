@@ -3,14 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.Model";
 
-const generateToken = (id: string, userType: string) => {
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is not defined in environment variables");
-  }
-  return jwt.sign({ id, role: userType }, process.env.JWT_SECRET!, {
-    expiresIn: "14d",
-  });
-};
+
 
 /**
  * @swagger
@@ -40,10 +33,17 @@ const generateToken = (id: string, userType: string) => {
  *         role:
  *           type: string
  *           enum: [CANDIDATE, EMPLOYER, ADMIN, GUEST]
- *         createdAt:
- *           type: string
- *           format: date
  */
+// Helper function to generate token with userType
+const generateToken = (id: string, userType: string = "user") => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is not defined in environment variables");
+  }
+  return jwt.sign({ id, userType }, process.env.JWT_SECRET!, {
+    expiresIn: "30d",
+  });
+};
+
 /**
  * @swagger
  * /api/auth/register:
@@ -56,12 +56,7 @@ const generateToken = (id: string, userType: string) => {
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - name
- *               - email
- *               - phone
- *               - password
- *               - role
+ *             required: [name, email, phone, password, role]
  *             properties:
  *               name:
  *                 type: string
@@ -71,28 +66,27 @@ const generateToken = (id: string, userType: string) => {
  *                 type: string
  *               password:
  *                 type: string
+ *                 minLength: 6
  *               role:
  *                 type: string
- *                 enum: [CANDIDATE, EMPLOYER, ADMIN]
+ *                 enum: [CANDIDATE, ADMIN]
  *     responses:
  *       201:
  *         description: User created successfully
+ *       400:
+ *         description: User already exists or invalid role
+ *       500:
+ *         description: Server error
  */
 export const addUser = async (req: Request, res: Response) => {
   console.log(process.env.JWT_SECRET);
   try {
-    const name =
-      req.body.name ||
-      `${req.body.FirstName || ""} ${req.body.LastName || ""}`.trim();
-    const email = req.body.email || req.body.Email;
-    const phone = req.body.phone || req.body.PhoneNumber;
-    const password = req.body.password;
-    const role = req.body.role || req.body.UserType?.toUpperCase();
+    const { name, email, phone, password, role } = req.body;
 
-    if (!name || !email || !phone || !password || !role) {
+    if (role === "EMPLOYER") {
       return res.status(400).json({
         success: false,
-        message: "name, email, phone, password, and role are required",
+        message: "Please use /api/employers/register for employer registration",
       });
     }
 
@@ -123,25 +117,40 @@ export const addUser = async (req: Request, res: Response) => {
       avatar: avatarUrl,
     });
 
-    const token = generateToken(NewUser._id.toString(), NewUser.role);
-
-    res.status(201).json({
-      success: true,
-      message: "User created successfully",
-      token,
-      user: {
-        id: NewUser._id,
-        name: NewUser.name,
-        email: NewUser.email,
-        role: NewUser.role,
-        avatar: NewUser.avatar,
-      },
-    });
+    if (NewUser) {
+      res.status(201).json({
+        success: true,
+        message: "User created successfully",
+        token: generateToken(NewUser._id.toString(), "user"),
+        user: {
+          id: NewUser._id,
+          name: NewUser.name,
+          email: NewUser.email,
+          role: NewUser.role,
+          avatar: NewUser.avatar,
+        },
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Invalid user data",
+      });
+    }
   } catch (error: any) {
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map(
+        (val: any) => val.message,
+      );
+      return res.status(400).json({
+        success: false,
+        message: messages.join(", "),
+      });
+    }
+
     console.error("Error creating user:", error);
     res.status(500).json({
       success: false,
-      message: "User creation failed",
+      message: error.message || "User creation failed",
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }
@@ -323,9 +332,7 @@ export const deleteUserById = async (req: Request, res: Response) => {
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
+ *             required: [email, password]
  *             properties:
  *               email:
  *                 type: string
@@ -334,58 +341,49 @@ export const deleteUserById = async (req: Request, res: Response) => {
  *     responses:
  *       200:
  *         description: Login successful
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
  */
-// Login User
 export const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required",
-      });
-    }
-
+    // Check for user email
     const user = await User.findOne({ email }).select("+password");
-    if (!user) {
-      return res.status(401).json({
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      if (user.role === "CANDIDATE" || user.role === "ADMIN") {
+        res.json({
+          success: true,
+          token: generateToken((user._id as unknown) as string, "user"),
+          user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar,
+          },
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message:
+            "Invalid login. Please use employer login for employer accounts.",
+        });
+      }
+    } else {
+      res.status(401).json({
         success: false,
         message: "Invalid credentials",
       });
     }
-
-    if (user.isActive === false) {
-      return res.status(403).json({
-        success: false,
-        message: "Your account has been suspended. Please contact support.",
-      });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
-    }
-    const token = generateToken(user._id.toString(), user.role);
-
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-      },
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Server Error",
     });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Login failed" });
   }
 };
 
