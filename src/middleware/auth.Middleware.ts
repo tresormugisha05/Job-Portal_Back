@@ -11,7 +11,7 @@ interface JwtPayload {
   role: string;
 }
 
-export const protect = (
+export const protect = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
@@ -26,10 +26,18 @@ export const protect = (
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
-    req.user = {
-      id: decoded.id,
-      role: decoded.role
-    };
+    if (decoded.userType === "employer") {
+      req.user = (await Employer.findById(decoded.id).select("-password")) as any;
+      if (req.user) {
+        req.user.role = "EMPLOYER"; // Standardize role for frontend
+      }
+    } else {
+      req.user = (await User.findById(decoded.id).select("-password")) as any;
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ error: "User not found" });
+    }
 
     next();
   } catch (error) {

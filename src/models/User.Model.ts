@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
-export type UserRole = "CANDIDATE" | "EMPLOYER" | "ADMIN" | "GUEST";
+export type UserRole = "CANDIDATE" | "ADMIN" | "GUEST";
 
 export interface UserModel extends Document {
   name: string;
@@ -23,7 +23,7 @@ export interface UserModel extends Document {
   isActive: boolean;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-  employerId?: mongoose.Types.ObjectId;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -53,7 +53,7 @@ const UserSchema = new Schema<UserModel>(
 
     role: {
       type: String,
-      enum: ["CANDIDATE", "EMPLOYER", "ADMIN", "GUEST"],
+      enum: ["CANDIDATE", "ADMIN", "GUEST"],
       required: true
     },
 
@@ -91,10 +91,7 @@ const UserSchema = new Schema<UserModel>(
     resetPasswordToken: String,
     resetPasswordExpires: Date,
 
-    employerId: {
-      type: Schema.Types.ObjectId,
-      ref: "Employer"
-    }
+
   },
   { timestamps: true }
 );
