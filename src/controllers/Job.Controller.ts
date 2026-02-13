@@ -316,7 +316,7 @@ export const getJobById = async (req: Request, res: Response) => {
     }
     
     job.views += 1;
-    await job.save();
+    await job.save({ validateBeforeSave: false });
 
     res.status(200).json({
       success: true,
