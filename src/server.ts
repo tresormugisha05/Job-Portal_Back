@@ -12,7 +12,7 @@ import { specs, swaggerUi } from "./config/swagger";
 import { createIndexes } from "./config/indexing";
 import path from "path";
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,8 +23,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
 const MONGO_URL: string =
-  process.env.MONGO_URL ||
-  "mongodb+srv://teta:2E5Vr9Kz5kZboBwK@cluster0.62mwlgl.mongodb.net/?appName=Cluster0";
+  "mongodb+srv://teta:2E5Vr9Kz5kZboBwK@cluster0.62mwlgl.mongodb.net/?appName=Cluster0"; 
 console.log("MongoDB URL:", MONGO_URL);
 app.use(
   "/api-docs",
@@ -33,7 +32,7 @@ app.use(
     explorer: true,
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "Job Portal API Documentation",
-  })
+  }),
 );
 
 // Root route

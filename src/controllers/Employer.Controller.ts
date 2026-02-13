@@ -190,7 +190,6 @@ export const addEmployer = async (req: Request, res: Response) => {
       location,
       email,
       contactPhone,
-      userId,
     } = req.body;
 
     if (
@@ -200,8 +199,7 @@ export const addEmployer = async (req: Request, res: Response) => {
       !description ||
       !location ||
       !email ||
-      !contactPhone ||
-      !userId
+      !contactPhone
     ) {
       return res.status(400).json({
         success: false,
@@ -210,19 +208,11 @@ export const addEmployer = async (req: Request, res: Response) => {
     }
 
     // Check if user already has an employer profile
-    const existingEmployer = await Employer.findOne({ userId });
+    const existingEmployer = await Employer.findOne({ email });
     if (existingEmployer) {
       return res.status(400).json({
         success: false,
-        message: "Employer profile already exists for this user",
-      });
-    }
-
-    const user = await User.findById(userId);
-    if (!user || user.role !== 'EMPLOYER') {
-      return res.status(400).json({
-        success: false,
-        message: "User not found or not an employer type",
+        message: "Employer Email already exists for this user",
       });
     }
 
@@ -235,12 +225,7 @@ export const addEmployer = async (req: Request, res: Response) => {
       location,
       email,
       contactPhone,
-      userId,
     });
-
-    user.employerId = newEmployer._id as any;
-    await user.save();
-
     res.status(201).json({
       success: true,
       message: "Employer profile created successfully",
@@ -255,7 +240,6 @@ export const addEmployer = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 /**
  * @swagger
@@ -296,7 +280,6 @@ export const getEmployerById = async (req: Request, res: Response) => {
         message: "Employer not found",
       });
     }
-
     res.status(200).json({
       success: true,
       data: employer,
@@ -350,23 +333,24 @@ export const updateEmployer = async (req: Request, res: Response) => {
     const employer = await Employer.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
-    }).populate("userId");
+    });
+
     if (!employer) {
       return res.status(404).json({
         success: false,
         message: "Employer not found",
       });
     }
-
-    // Ownership check: EMPLOYER can only update their own profile
-    if ((req as any).user.role === 'EMPLOYER' && employer.userId._id.toString() !== (req as any).user.id) {
+    if (
+      (req as any).user.role === "EMPLOYER" &&
+      employer._id.toString() !== (req as any).user.id
+    ) {
       return res.status(403).json({
         success: false,
-        message: "You are not allowed to update this employer profile"
+        message: "You are not allowed to update this employer profile",
       });
     }
 
-    // Proceed with update
     Object.assign(employer, req.body);
     await employer.save();
 
@@ -380,7 +364,6 @@ export const updateEmployer = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Sorry, please try again" });
   }
 };
-
 
 /**
  * @swagger
@@ -422,7 +405,7 @@ export const deleteEmployer = async (req: Request, res: Response) => {
       });
     }
 
-    await User.findByIdAndUpdate(employer.userId, {
+    await Employer.findByIdAndUpdate(employer._id, {
       $unset: { employerId: 1 },
     });
 
@@ -485,22 +468,22 @@ export const getTopHiringCompanies = async (_: Request, res: Response) => {
   try {
     const Job = (await import("../models/Job.Model")).default;
     const employers = await Employer.find({ isVerified: true });
-    
+
     const employersWithJobCount = await Promise.all(
       employers.map(async (employer) => {
-        const jobCount = await Job.countDocuments({ 
-          employerId: employer._id.toString(), 
-          isActive: true 
+        const jobCount = await Job.countDocuments({
+          employerId: employer._id.toString(),
+          isActive: true,
         });
         return {
           ...employer.toObject(),
-          jobCount
+          jobCount,
         };
-      })
+      }),
     );
 
     const topEmployers = employersWithJobCount
-      .filter(e => e.jobCount > 0)
+      .filter((e) => e.jobCount > 0)
       .sort((a, b) => b.jobCount - a.jobCount)
       .slice(0, 10);
 
