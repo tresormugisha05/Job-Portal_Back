@@ -35,12 +35,11 @@ export const createIndexes = async () => {
     await mongoose.connection.collection('jobs').createIndex({ views: -1 }).catch(() => { });
 
     // Applications indexes
-    await mongoose.connection.collection('applications').createIndex({ userId: 1 }).catch(() => { });
-    await mongoose.connection.collection('applications').createIndex({ jobId: 1 }).catch(() => { });
-    await mongoose.connection.collection('applications').createIndex({ employerId: 1 }).catch(() => { });
-    await mongoose.connection.collection('applications').createIndex({ status: 1 }).catch(() => { });
-    await mongoose.connection.collection('applications').createIndex({ submissionDate: -1 }).catch(() => { });
-    await mongoose.connection.collection('applications').createIndex({ userId: 1, jobId: 1 }, { unique: true }).catch(() => { });
+    await mongoose.connection.collection('applications').createIndex({ userId: 1 }).catch(() => {});
+    await mongoose.connection.collection('applications').createIndex({ jobId: 1 }).catch(() => {});
+    await mongoose.connection.collection('applications').createIndex({ status: 1 }).catch(() => {});
+    await mongoose.connection.collection('applications').createIndex({ submissionDate: -1 }).catch(() => {});
+    await mongoose.connection.collection('applications').createIndex({ userId: 1, jobId: 1 }, { unique: true }).catch(() => {});
 
     // Employers indexes - skip email to avoid conflicts
     await mongoose.connection.collection('employers').createIndex({ companyName: 1 }).catch(() => { });

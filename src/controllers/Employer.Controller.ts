@@ -166,7 +166,7 @@ export const registerEmployer = async (req: Request, res: Response) => {
     if (existingEmployer) {
       return res.status(400).json({
         success: false,
-        message: "Employer with this email already exists",
+        message: "Email already exists for this Employer",
       });
     }
 
@@ -551,4 +551,4 @@ export const getTopHiringCompanies = async (_: Request, res: Response) => {
     console.error("Error fetching top hiring companies:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
-};
+}; 

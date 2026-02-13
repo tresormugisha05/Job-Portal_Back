@@ -22,8 +22,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 
-const MONGO_URL: string =
-  "mongodb+srv://teta:2E5Vr9Kz5kZboBwK@cluster0.62mwlgl.mongodb.net/?appName=Cluster0"; 
+const MONGO_URL: string = "mongodb://localhost:27017/job_portal";
 console.log("MongoDB URL:", MONGO_URL);
 app.use(
   "/api-docs",
