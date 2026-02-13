@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
 export interface JobModel {}
-
 export type JobCategory =
   | "Technology"
   | "Healthcare"
@@ -72,7 +71,7 @@ const JobSchema = new Schema<JobModel>({
   education: { type: String },
   tags: [{ type: String }],
   deadline: { type: Date, required: true },
-  employerId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+  employerId: { type: Schema.Types.ObjectId, required: true, ref: "Employer" },
   views: { type: Number, default: 0 },
   applicationCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },

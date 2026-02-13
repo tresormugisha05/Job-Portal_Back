@@ -19,7 +19,7 @@ router.get("/search", searchJobs);
 
 // Protected routes - authentication required
 router.post("/", protect, authorize('EMPLOYER'), addJob);
-router.get("/employer/:employerId", protect, authorize('EMPLOYER', 'ADMIN'), getJobsByEmployer);
+router.get("/employer/:employerId", getJobsByEmployer);
 router.get("/:id", getJobById);
 router.put("/:id", protect, authorize('EMPLOYER'), updateJob);
 router.delete("/:id", protect, authorize('EMPLOYER', 'ADMIN'), deleteJob);
