@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-
+import bcrypt from "bcryptjs";
 export interface EmployerModel extends Document {
   companyName: string;
-  industry: string;
+  password:string;
   companySize: string;
   website?: string;
   description: string;
@@ -20,7 +20,7 @@ export interface EmployerModel extends Document {
 const EmployerSchema = new Schema<EmployerModel>(
   {
     companyName: { type: String, required: true },
-    industry: { type: String, required: true },
+    password: { type: String, required: true ,select:false},
     companySize: { type: String, required: true },
     website: { type: String },
     description: { type: String, required: true },
@@ -37,4 +37,10 @@ const EmployerSchema = new Schema<EmployerModel>(
   }
 );
 
+EmployerSchema.pre<EmployerModel>("save", async function () {
+  if (!this.isModified("password")) return;
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 export default mongoose.model<EmployerModel>("Employer", EmployerSchema);

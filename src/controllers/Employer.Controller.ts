@@ -1,12 +1,5 @@
 import { Request, Response } from "express";
 import Employer from "../models/Employer.Model";
-import User from "../models/User.Model";
-
-// Helper function to check if user is an employer
-const isUserEmployer = (user: any): boolean => {
-  return user && user.role === "EMPLOYER";
-};
-
 /**
  * @swagger
  * components:
@@ -183,7 +176,7 @@ export const addEmployer = async (req: Request, res: Response) => {
   try {
     const {
       companyName,
-      industry,
+      password,
       companySize,
       website,
       description,
@@ -194,7 +187,7 @@ export const addEmployer = async (req: Request, res: Response) => {
 
     if (
       !companyName ||
-      !industry ||
+      !password||
       !companySize ||
       !description ||
       !location ||
@@ -218,7 +211,7 @@ export const addEmployer = async (req: Request, res: Response) => {
 
     const newEmployer = await Employer.create({
       companyName,
-      industry,
+      password,
       companySize,
       website,
       description,
