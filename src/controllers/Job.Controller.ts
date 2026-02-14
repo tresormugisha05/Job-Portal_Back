@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 import Job from '../models/Job.Model';
-import mongoose from 'mongoose';
-
 /**
  * @swagger
  * components:
@@ -306,7 +304,7 @@ export const addJob = async (req: Request, res: Response) => {
  */
 export const getJobById = async (req: Request, res: Response) => {
   try {
-    const job = await Job.findById(req.params.id).populate('employerId');
+    const job = await Job.findById(req.params.id)
     
     if (!job) {
       return res.status(404).json({
@@ -474,15 +472,8 @@ export const deleteJob = async (req: Request, res: Response) => {
  */
 export const getJobsByEmployer = async (req: Request, res: Response) => {
   try {
-    const employerIdStr = Array.isArray(req.params.employerId) ? req.params.employerId[0] : req.params.employerId;
-    
-    if (!mongoose.Types.ObjectId.isValid(employerIdStr)) {
-      return res.status(400).json({ message: "Invalid employer ID" });
-    }
-    
-    const employerId = new mongoose.Types.ObjectId(employerIdStr);
+    const employerId = req.params.id;
     const jobs = await Job.find({ employerId });
-    
     res.status(200).json({
       success: true,
       data: jobs,
