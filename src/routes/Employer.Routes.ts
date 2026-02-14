@@ -20,7 +20,6 @@ router.post('/register', registerEmployer);
 router.post('/login', loginEmployer);
 
 // Public route: get all employers
-router.get('/', getAllEmployers);
 router.get('/all', getAllEmployers);
 router.get('/top-hiring', getTopHiringCompanies);
 router.get('/:id', getEmployerById);
