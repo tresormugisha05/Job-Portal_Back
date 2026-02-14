@@ -146,7 +146,6 @@ export const getAllEmployers = async (_: Request, res: Response) => {
 export const registerEmployer = async (req: Request, res: Response) => {
   try {
     const {
-      name,
       email,
       password,
       phone,
@@ -155,6 +154,7 @@ export const registerEmployer = async (req: Request, res: Response) => {
 
     // Validate required fields for initial registration
     if (!companyName || !email || !password || !phone) {
+      console.log()
       return res.status(400).json({
         success: false,
         message: "Please provide all required fields: companyName, email, password, phone"
@@ -176,7 +176,6 @@ export const registerEmployer = async (req: Request, res: Response) => {
       password,
       phone,
       companyName,
-      // contactPhone removed
       isVerified: false, // Default to unverified
     });
 
