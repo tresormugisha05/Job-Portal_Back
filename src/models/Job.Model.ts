@@ -15,7 +15,6 @@ export type JobType =
   | "Contract"
   | "Internship"
   | "Remote";
-
 export interface JobModel extends Document {
   title: string;
   description: string;

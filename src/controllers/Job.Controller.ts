@@ -1,5 +1,7 @@
-import { Request, Response } from 'express';
-import Job from '../models/Job.Model';
+import { Request, Response } from "express";
+import Job from "../models/Job.Model";
+import mongoose from "mongoose";
+
 /**
  * @swagger
  * components:
@@ -112,7 +114,7 @@ import Job from '../models/Job.Model';
  */
 export const getAllJobs = async (_: Request, res: Response) => {
   try {
-    const jobs = await Job.find({ isActive: true }).populate('employerId');
+    const jobs = await Job.find({ isActive: true }).populate("employerId");
     res.status(200).json({
       success: true,
       data: jobs,
@@ -213,36 +215,47 @@ export const getAllJobs = async (_: Request, res: Response) => {
  */
 export const addJob = async (req: Request, res: Response) => {
   try {
-    const { 
-      title, 
+    const {
+      title,
       description,
       company,
-      requirements, 
+      requirements,
       responsibilities,
-      category, 
+      category,
       jobType,
       type, // Frontend might send 'type' instead of 'jobType'
-      location, 
-      salary, 
+      location,
+      salary,
       experience,
       education,
       tags,
-      deadline, 
+      deadline,
       employerId,
       image,
-      hasBanner
+      hasBanner,
     } = req.body;
-    
+
     // Use 'type' if 'jobType' is not provided
     const finalJobType = jobType || type;
-    
-    if(!title || !description || !company || !requirements || !responsibilities || !category || !finalJobType || !location || !deadline || !employerId){
+
+    if (
+      !title ||
+      !description ||
+      !company ||
+      !requirements ||
+      !responsibilities ||
+      !category ||
+      !finalJobType ||
+      !location ||
+      !deadline ||
+      !employerId
+    ) {
       return res.status(400).json({
-        success:false,
-        message:"all required fields are needed"
-      })
+        success: false,
+        message: "all required fields are needed",
+      });
     }
-    
+
     const newJob = await Job.create({
       title,
       description,
@@ -258,17 +271,17 @@ export const addJob = async (req: Request, res: Response) => {
       tags,
       deadline,
       employerId,
-      image
+      image,
     });
-    
+
     res.status(201).json({
       success: true,
-      message: 'Job created successfully',
-      data: newJob
+      message: "Job created successfully",
+      data: newJob,
     });
   } catch (error) {
-    console.error('Error creating job:', error);
-    res.status(500).json({message:"sorry please try again"});
+    console.error("Error creating job:", error);
+    res.status(500).json({ message: "sorry please try again" });
   }
 };
 
@@ -304,15 +317,21 @@ export const addJob = async (req: Request, res: Response) => {
  */
 export const getJobById = async (req: Request, res: Response) => {
   try {
-    const job = await Job.findById(req.params.id)
-    
+    console.log("=== DEBUG: getJobById called ===");
+    console.log("Request params:", req.params);
+    console.log("Job ID being queried:", req.params.id);
+
+    const job = await Job.findById(req.params.id).populate("employerId");
+    console.log("Job found:", job);
+
     if (!job) {
+      console.log("Job not found for ID:", req.params.id);
       return res.status(404).json({
         success: false,
         message: "Job not found",
       });
     }
-    
+
     job.views += 1;
     await job.save({ validateBeforeSave: false });
 
@@ -320,8 +339,11 @@ export const getJobById = async (req: Request, res: Response) => {
       success: true,
       data: job,
     });
-  } catch (error) {
-    console.error("Error fetching job:", error);
+  } catch (error: any) {
+    console.error("=== DEBUG: Error fetching job ===");
+    console.error("Error message:", error.message);
+    console.error("Error name:", error.name);
+    console.error("Full error:", error);
     res.status(500).json({ message: "sorry please try again" });
   }
 };
@@ -369,7 +391,7 @@ export const updateJob = async (req: Request, res: Response) => {
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
-    }).populate('employerId');
+    }).populate("employerId");
 
     if (!job) {
       return res.status(404).json({
@@ -472,8 +494,17 @@ export const deleteJob = async (req: Request, res: Response) => {
  */
 export const getJobsByEmployer = async (req: Request, res: Response) => {
   try {
-    const employerId = req.params.id;
+    const employerIdStr = Array.isArray(req.params.employerId)
+      ? req.params.employerId[0]
+      : req.params.employerId;
+
+    if (!mongoose.Types.ObjectId.isValid(employerIdStr)) {
+      return res.status(400).json({ message: "Invalid employer ID" });
+    }
+
+    const employerId = new mongoose.Types.ObjectId(employerIdStr);
     const jobs = await Job.find({ employerId });
+
     res.status(200).json({
       success: true,
       data: jobs,
@@ -533,22 +564,22 @@ export const getJobsByEmployer = async (req: Request, res: Response) => {
 export const searchJobs = async (req: Request, res: Response) => {
   try {
     const { keyword, category, location, jobType } = req.query;
-    
+
     let query: any = { isActive: true };
-    
+
     if (keyword) {
       query.$or = [
-        { title: { $regex: keyword, $options: 'i' } },
-        { description: { $regex: keyword, $options: 'i' } }
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
       ];
     }
-    
+
     if (category) query.category = category;
-    if (location) query.location = { $regex: location, $options: 'i' };
+    if (location) query.location = { $regex: location, $options: "i" };
     if (jobType) query.jobType = jobType;
-    
-    const jobs = await Job.find(query).populate('employerId');
-    
+
+    const jobs = await Job.find(query).populate("employerId");
+
     res.status(200).json({
       success: true,
       data: jobs,

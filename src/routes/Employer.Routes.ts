@@ -18,8 +18,6 @@ const router = express.Router();
 // Public routes
 router.post('/register', registerEmployer);
 router.post('/login', loginEmployer);
-
-// Public route: get all employers
 router.get('/all', getAllEmployers);
 router.get('/top-hiring', getTopHiringCompanies);
 router.get('/:id', getEmployerById);
