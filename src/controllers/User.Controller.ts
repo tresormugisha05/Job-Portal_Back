@@ -79,6 +79,7 @@ const generateToken = (id: string, userType: string = "user") => {
  *         description: Server error
  */
 export const addUser = async (req: Request, res: Response) => {
+  console.log(process.env.JWT_SECRET);
   try {
     const { name, email, phone, password, role } = req.body;
 

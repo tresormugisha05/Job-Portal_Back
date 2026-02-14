@@ -50,8 +50,6 @@ const EmployerSchema = new Schema<EmployerModel>(
     description: { type: String },
     location: { type: String },
     logo: { type: String },
-
-    // Status fields
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
   },
