@@ -317,34 +317,23 @@ export const addJob = async (req: Request, res: Response) => {
  */
 export const getJobById = async (req: Request, res: Response) => {
   try {
-    console.log("=== DEBUG: getJobById called ===");
-    console.log("Request params:", req.params);
-    console.log("Job ID being queried:", req.params.id);
-
-    const job = await Job.findById(req.params.id).populate("employerId");
+    const job = await Job.findById(req.params.id)
     console.log("Job found:", job);
 
     if (!job) {
-      console.log("Job not found for ID:", req.params.id);
       return res.status(404).json({
         success: false,
         message: "Job not found",
       });
     }
-
     job.views += 1;
     await job.save({ validateBeforeSave: false });
-
     res.status(200).json({
       success: true,
       data: job,
     });
-  } catch (error: any) {
-    console.error("=== DEBUG: Error fetching job ===");
-    console.error("Error message:", error.message);
-    console.error("Error name:", error.name);
-    console.error("Full error:", error);
-    res.status(500).json({ message: "sorry please try again" });
+  } catch (error) {
+    res.status(500).json({ message: `${error}` });
   }
 };
 

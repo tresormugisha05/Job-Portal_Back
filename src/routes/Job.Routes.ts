@@ -1,6 +1,6 @@
 import express from "express";
-import { protect } from '../middleware/auth.Middleware';
-import { authorize } from '../middleware/authorize';
+import { protect } from "../middleware/auth.Middleware";
+import { authorize } from "../middleware/authorize";
 import {
   getAllJobs,
   addJob,
@@ -8,7 +8,7 @@ import {
   updateJob,
   deleteJob,
   getJobsByEmployer,
-  searchJobs
+  searchJobs,
 } from "../controllers/Job.Controller";
 
 const router = express.Router();
@@ -16,12 +16,12 @@ const router = express.Router();
 // Public routes - no authentication required
 router.get("/all", getAllJobs);
 router.get("/search", searchJobs);
+router.get("/:id", getJobById); // This must come BEFORE /employer/:employerId
 
 // Protected routes - authentication required
-router.post("/", protect, authorize('EMPLOYER'), addJob);
+router.post("/", protect, authorize("EMPLOYER"), addJob);
 router.get("/employer/:employerId", getJobsByEmployer);
-router.get("/:id", getJobById);
-router.put("/:id", protect, authorize('EMPLOYER'), updateJob);
-router.delete("/:id", protect, authorize('EMPLOYER', 'ADMIN'), deleteJob);
+router.put("/:id", protect, authorize("EMPLOYER"), updateJob);
+router.delete("/:id", protect, authorize("EMPLOYER", "ADMIN"), deleteJob);
 
 export default router;
