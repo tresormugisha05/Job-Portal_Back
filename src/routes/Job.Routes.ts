@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 // Public routes - no authentication required
-router.get("/", getAllJobs);
+router.get("/all", getAllJobs);
 router.get("/search", searchJobs);
 
 // Protected routes - authentication required
