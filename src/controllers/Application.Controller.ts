@@ -149,16 +149,56 @@ export const submitApplication = async (req: Request, res: Response) => {
     console.log('req.params:', req.params);
     console.log('req.body:', req.body);
     console.log('req.files:', req.files);
-    
-    // Extract fields from mixed sources
+
+    // Extract jobId first
     const jobId = req.params.jobId || req.body.jobId;
-    const userId = req.body.userId || 'temp-user-id';
-    const employerId = req.body.employerId || 'temp-employer-id';
+
+    // Get job details to ensure it exists and to get employerId
+    const job = await Job.findById(jobId);
+    if (!job || !job.isActive) {
+      console.log('Job not found or inactive');
+      return res.status(404).json({
+        success: false,
+        message: "Job not found or no longer active"
+      });
+    }
+
+    if (new Date() > job.deadline) {
+      console.log('Application deadline passed');
+      return res.status(400).json({
+        success: false,
+        message: "Application deadline has passed"
+      });
+    }
+
+    // Use authenticated user ID and job's employer ID
+    const userIdObj = (req as any).user._id || (req as any).user.id;
+    const userId = userIdObj ? String(userIdObj) : undefined;
+
+    // Check if employerId exists on job
+    if (!job.employerId) {
+      console.error('Job found but employerId is missing:', job);
+      return res.status(500).json({
+        success: false,
+        message: "Job data is corrupted (missing employerId)"
+      });
+    }
+
+    const employerId = String(job.employerId);
+
     const name = req.body.name;
     const email = req.body.email;
-    
-    console.log('Extracted values:', { jobId, userId, employerId, name, email });
-    
+
+    console.log('Extracted values for creation:', {
+      jobId,
+      userId,
+      userIdType: typeof userId,
+      employerId,
+      employerIdType: typeof employerId,
+      name,
+      email
+    });
+
     // Validate ObjectId format
     if (!jobId || !jobId.match(/^[0-9a-fA-F]{24}$/)) {
       console.log('Invalid jobId format:', jobId);
@@ -167,24 +207,24 @@ export const submitApplication = async (req: Request, res: Response) => {
         message: "Invalid job ID format"
       });
     }
-    
+
     // Extract resume file path from uploaded files
     let resume = '';
 
-if (req.files) {
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (req.files) {
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-  if (files.resume && files.resume[0]) {
-    // Cloudinary stores the URL in 'path' property
-    resume = files.resume[0].path || files.resume[0].filename;
-    console.log('Resume file found:', resume);
-  } else {
-    console.log('No resume file in req.files');
-  }
-} else {
-  console.log('req.files is undefined');
-}
-    
+      if (files.resume && files.resume[0]) {
+        // Cloudinary stores the URL in 'path' property
+        resume = files.resume[0].path || files.resume[0].filename;
+        console.log('Resume file found:', resume);
+      } else {
+        console.log('No resume file in req.files');
+      }
+    } else {
+      console.log('req.files is undefined');
+    }
+
     const coverLetter = req.body.coverLetter || '';
 
     if (!jobId || !userId || !employerId || !resume || !name || !email) {
@@ -201,23 +241,6 @@ if (req.files) {
       return res.status(400).json({
         success: false,
         message: "You have already applied for this job"
-      });
-    }
-
-    const job = await Job.findById(jobId);
-    if (!job || !job.isActive) {
-      console.log('Job not found or inactive');
-      return res.status(404).json({
-        success: false,
-        message: "Job not found or no longer active"
-      });
-    }
-
-    if (new Date() > job.deadline) {
-      console.log('Application deadline passed');
-      return res.status(400).json({
-        success: false,
-        message: "Application deadline has passed"
       });
     }
 

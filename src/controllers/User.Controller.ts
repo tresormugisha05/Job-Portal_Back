@@ -14,7 +14,7 @@ import User from "../models/User.Model";
  *       required:
  *         - name
  *         - email
- *         - phone
+ *         - contactPhone
  *         - password
  *         - role
  *       properties:
@@ -24,7 +24,7 @@ import User from "../models/User.Model";
  *           type: string
  *         email:
  *           type: string
- *         phone:
+ *         contactPhone:
  *           type: string
  *         password:
  *           type: string
@@ -56,13 +56,13 @@ const generateToken = (id: string, userType: string = "user") => {
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, phone, password, role]
+ *             required: [name, email, contactPhone, password, role]
  *             properties:
  *               name:
  *                 type: string
  *               email:
  *                 type: string
- *               phone:
+ *               contactPhone:
  *                 type: string
  *               password:
  *                 type: string
@@ -81,7 +81,7 @@ const generateToken = (id: string, userType: string = "user") => {
 export const addUser = async (req: Request, res: Response) => {
   console.log(process.env.JWT_SECRET);
   try {
-    const { name, email, phone, password, role } = req.body;
+    const { name, email, contactPhone, password, role } = req.body;
 
     if (role === "EMPLOYER") {
       return res.status(400).json({
@@ -111,7 +111,7 @@ export const addUser = async (req: Request, res: Response) => {
     const NewUser = await User.create({
       name,
       email: normalizedEmail,
-      phone,
+      contactPhone,
       password,
       role: normalizedRole,
       avatar: avatarUrl,

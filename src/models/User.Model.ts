@@ -6,7 +6,7 @@ export type UserRole = "CANDIDATE" | "ADMIN" | "GUEST";
 export interface UserModel extends Document {
   name: string;
   email: string;
-  phone: string;
+  contactPhone: string;
   password: string;
   avatar?: string;
   role: UserRole;
@@ -40,7 +40,7 @@ const UserSchema = new Schema<UserModel>(
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email"]
     },
 
-    phone: { type: String, required: true },
+    contactPhone: { type: String, required: true },
 
     password: {
       type: String,
