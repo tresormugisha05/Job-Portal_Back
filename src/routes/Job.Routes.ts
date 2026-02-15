@@ -13,15 +13,17 @@ import {
 
 const router = express.Router();
 
+// Public routes - MUST come before parameterized routes
+router.get("/all", getAllJobs);
+router.get("/search", searchJobs);
+
 // Protected routes - authentication required
 router.post("/", protect, authorize("EMPLOYER"), addJob);
 router.get("/employer/:employerId", getJobsByEmployer);
 router.put("/:id", protect, authorize("EMPLOYER"), updateJob);
 router.delete("/:id", protect, authorize("EMPLOYER", "ADMIN"), deleteJob);
 
-// Public routes - no authentication required
-router.get("/all", getAllJobs);
-router.get("/search", searchJobs);
-router.get("/:id", getJobById); // Generic ID route must come last
+// Generic ID route must come last
+router.get("/:id", getJobById);
 
 export default router;

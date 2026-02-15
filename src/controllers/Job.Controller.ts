@@ -114,23 +114,19 @@ import mongoose from "mongoose";
  */
 export const getAllJobs = async (_: Request, res: Response) => {
   try {
-    const jobs = await Job.find({ isActive: true })
-      .populate({
-        path: "employerId",
-        options: { strictPopulate: false }
-      })
-      .lean();
-
-    // Filter out jobs with null employerId (orphaned jobs)
-    const validJobs = jobs.filter(job => job.employerId);
+    const jobs = await Job.find({ isActive: true });
 
     res.status(200).json({
       success: true,
-      data: validJobs,
+      data: jobs,
     });
   } catch (error) {
     console.error("Error fetching jobs:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({
+      success: false,
+      message: "sorry please try again",
+      error: error instanceof Error ? error.message : String(error)
+    });
   }
 };
 
@@ -576,22 +572,18 @@ export const searchJobs = async (req: Request, res: Response) => {
     if (location) query.location = { $regex: location, $options: "i" };
     if (jobType) query.jobType = jobType;
 
-    const jobs = await Job.find(query)
-      .populate({
-        path: "employerId",
-        options: { strictPopulate: false }
-      })
-      .lean();
-
-    // Filter out jobs with null employerId (orphaned jobs)
-    const validJobs = jobs.filter(job => job.employerId);
+    const jobs = await Job.find(query);
 
     res.status(200).json({
       success: true,
-      data: validJobs,
+      data: jobs,
     });
   } catch (error) {
     console.error("Error searching jobs:", error);
-    res.status(500).json({ message: "sorry please try again" });
+    res.status(500).json({
+      success: false,
+      message: "sorry please try again",
+      error: error instanceof Error ? error.message : String(error)
+    });
   }
 };
