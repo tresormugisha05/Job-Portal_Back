@@ -114,10 +114,19 @@ import mongoose from "mongoose";
  */
 export const getAllJobs = async (_: Request, res: Response) => {
   try {
-    const jobs = await Job.find({ isActive: true }).populate("employerId");
+    const jobs = await Job.find({ isActive: true })
+      .populate({
+        path: "employerId",
+        options: { strictPopulate: false }
+      })
+      .lean();
+
+    // Filter out jobs with null employerId (orphaned jobs)
+    const validJobs = jobs.filter(job => job.employerId);
+
     res.status(200).json({
       success: true,
-      data: jobs,
+      data: validJobs,
     });
   } catch (error) {
     console.error("Error fetching jobs:", error);
@@ -567,11 +576,19 @@ export const searchJobs = async (req: Request, res: Response) => {
     if (location) query.location = { $regex: location, $options: "i" };
     if (jobType) query.jobType = jobType;
 
-    const jobs = await Job.find(query).populate("employerId");
+    const jobs = await Job.find(query)
+      .populate({
+        path: "employerId",
+        options: { strictPopulate: false }
+      })
+      .lean();
+
+    // Filter out jobs with null employerId (orphaned jobs)
+    const validJobs = jobs.filter(job => job.employerId);
 
     res.status(200).json({
       success: true,
-      data: jobs,
+      data: validJobs,
     });
   } catch (error) {
     console.error("Error searching jobs:", error);
