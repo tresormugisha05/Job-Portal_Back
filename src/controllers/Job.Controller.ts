@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Job from "../models/Job.Model";
 import mongoose from "mongoose";
+import { JsonWebTokenError } from "jsonwebtoken";
 
 /**
  * @swagger
