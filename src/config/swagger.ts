@@ -19,7 +19,7 @@ const options = {
         description: 'Development server',
       },
       {
-        url: 'https://job-portal-back-fdlt.onrender.com/api-docs',
+        url: 'https://job-portal-back-fdlt.onrender.com',
         description: 'Production server',
       },
     ],
