@@ -91,7 +91,7 @@ import mongoose from "mongoose";
 
 /**
  * @swagger
- * /api/jobs:
+ * /api/jobs/all:
  *   get:
  *     summary: Get all active jobs
  *     tags: [Jobs]
@@ -132,7 +132,7 @@ export const getAllJobs = async (_: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/jobs/all:
+ * /api/jobs:
  *   post:
  *     summary: Create a new job posting
  *     tags: [Jobs]
