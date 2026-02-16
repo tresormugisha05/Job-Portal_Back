@@ -132,7 +132,7 @@ export const getAllJobs = async (_: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/jobs:
+ * /api/jobs/all:
  *   post:
  *     summary: Create a new job posting
  *     tags: [Jobs]
